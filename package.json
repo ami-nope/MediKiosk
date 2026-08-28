@@ -1,0 +1,8 @@
+{
+  "name": "medikiosk-workspace",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix Frontend",
+    "dev:backend": "cd Backend && python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8001"
+  }
+}

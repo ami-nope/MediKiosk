@@ -1,0 +1,210 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   MediKIOSK — Hospital Grade Clinical Design System
+   Pristine, High-Legibility Medical UI (Inspired by Epic & One Medical)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Core Brand Palette */
+  --bg-app:          #f6fbfb;
+  --bg-surface:      #ffffff;
+  --bg-subtle:       #edf8f8;
+  --bg-hover:        #dffafa;
+
+  /* MediKiosk Branding */
+  --primary:         #103050;
+  --primary-hover:   #0a263f;
+  --primary-light:   #e8fbfb;
+  --primary-contrast:#ffffff;
+  --accent:          #38d8d8;
+  --accent-hover:    #20bfc8;
+  --accent-soft:     #dffafa;
+  --navy:            #103050;
+  --navy-surface:    #173d5c;
+
+  /* Status Colors */
+  --success:         #059669;  /* Emerald */
+  --success-bg:      #ecfdf5;
+  --success-border:  #a7f3d0;
+  
+  --warning:         #d97706;  /* Amber */
+  --warning-bg:      #fffbeb;
+  --warning-border:  #fde68a;
+
+  --danger:          #dc2626;  /* Medical Red */
+  --danger-bg:       #fef2f2;
+  --danger-border:   #fecaca;
+
+  /* Typography */
+  --text-main:       #103050;
+  --text-sub:        #31546d;
+  --text-muted:      #607d8c;
+  --text-inverse:    #ffffff;
+
+  /* Structural */
+  --border:          #bddce3;
+  --border-light:    #d9eeee;
+  --border-strong:   #7ab7c1;
+  
+  --shadow-sm:       0 1px 2px 0 rgba(16, 48, 80, 0.06);
+  --shadow-md:       0 4px 8px -1px rgba(16, 48, 80, 0.10), 0 2px 4px -2px rgba(16, 48, 80, 0.05);
+  --shadow-lg:       0 14px 28px -8px rgba(16, 48, 80, 0.18), 0 6px 12px -8px rgba(16, 48, 80, 0.10);
+
+  --radius-sm:       4px;
+  --radius-md:       8px;
+  --radius-lg:       12px;
+  --radius-xl:       16px;
+  --radius-full:     9999px;
+
+  --font-family:     'Source Sans 3', 'Segoe UI', sans-serif;
+  --header-h:        64px;
+}
+
+/* Dark Mode Theme — true black surfaces with restrained elevation */
+body.dark-mode {
+  color-scheme: dark;
+  --bg-app:          #071827;
+  --bg-surface:      #0d2438;
+  --bg-subtle:       #103050;
+  --bg-hover:        #173d5c;
+
+  --text-main:       #f6fbfb;
+  --text-sub:        #c8e6eb;
+  --text-muted:      #9bc5cc;
+  --text-inverse:    #ffffff;
+
+  --border:          #29556d;
+  --border-light:    #173d5c;
+  --border-strong:   #4ba5ae;
+
+  --primary:         #38d8d8;
+  --primary-hover:   #79eeee;
+  --primary-light:   #103050;
+  --primary-contrast:#071827;
+  --accent:          #38d8d8;
+  --accent-hover:    #79eeee;
+  --accent-soft:     #103050;
+  --navy:            #103050;
+  --navy-surface:    #071827;
+
+  --success:         #34d399;
+  --success-bg:      #052e24;
+  --success-border:  #065f46;
+  --warning:         #fbbf24;
+  --warning-bg:      #422006;
+  --warning-border:  #92400e;
+  --danger:          #f87171;
+  --danger-bg:       #450a0a;
+  --danger-border:   #991b1b;
+
+  --shadow-sm:       0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md:       0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg:       0 12px 30px rgba(0, 0, 0, 0.65);
+}
+
+body.dark-mode,
+body.dark-mode #app {
+  background-color: var(--bg-app);
+  color: var(--text-main);
+}
+
+body.dark-mode ::selection {
+  background: #38d8d8;
+  color: #071827;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  height: 100%;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+#app {
+  height: calc(100vh - var(--header-h));
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#app > main {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* SVG Icon Helper Utility */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  stroke-width: 2;
+  stroke: currentColor;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: middle;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-light);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-subtle);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}

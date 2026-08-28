@@ -1,0 +1,201 @@
+/* ── True dark theme component overrides ──────────────────────────────── */
+/* Keep clinical colors readable while removing the blue-gray cast. */
+body.dark-mode {
+  color-scheme: dark;
+}
+
+body.dark-mode,
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode input {
+  color: var(--text-main) !important;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode .page__title,
+body.dark-mode .queue__stat-value,
+body.dark-mode .queue__item-name,
+body.dark-mode .detail__patient-info h2,
+body.dark-mode .registration__heading,
+body.dark-mode .chat__welcome h3 {
+  color: var(--text-main) !important;
+}
+
+body.dark-mode p,
+body.dark-mode .page__desc,
+body.dark-mode .queue__stat-label,
+body.dark-mode .queue__item-meta,
+body.dark-mode .detail__patient-info p,
+body.dark-mode .detail__section-title,
+body.dark-mode .registration__sub,
+body.dark-mode .consent__text {
+  color: var(--text-sub) !important;
+}
+
+body.dark-mode .vk-overlay {
+  background: var(--navy) !important;
+}
+
+body.dark-mode .header {
+  background: #ffffff !important;
+  border-bottom-color: var(--border-light) !important;
+}
+
+body.dark-mode .a11y-bar,
+body.dark-mode .mode-switch,
+body.dark-mode .header__health {
+  background: #0d2438 !important;
+  border-color: #29556d !important;
+}
+
+body.dark-mode .a11y-bar {
+  background: rgba(13, 36, 56, 0.97) !important;
+  border-color: #29556d !important;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.58) !important;
+}
+
+body.dark-mode .header__subtitle,
+body.dark-mode .header__health,
+body.dark-mode .a11y-btn,
+body.dark-mode .mode-switch__btn {
+  color: #a1a1aa !important;
+}
+
+body.dark-mode .a11y-btn {
+  background: #103050 !important;
+  border-color: #29556d !important;
+  color: #f6fbfb !important;
+}
+
+body.dark-mode .a11y-btn__mark {
+  background: #173d5c !important;
+  color: #38d8d8 !important;
+}
+
+body.dark-mode .header__subtitle {
+  background: var(--accent-soft) !important;
+  color: var(--text-main) !important;
+}
+
+body.dark-mode .a11y-btn:hover,
+body.dark-mode .mode-switch__btn:hover {
+  background: #173d5c !important;
+  color: #f6fbfb !important;
+}
+
+body.dark-mode .a11y-btn--active,
+body.dark-mode .mode-switch__btn--active {
+  background: var(--primary) !important;
+  color: #071827 !important;
+}
+
+body.dark-mode .a11y-btn--active .a11y-btn__mark {
+  background: rgba(7, 24, 39, 0.18) !important;
+  color: #071827 !important;
+}
+
+body.dark-mode.high-contrast .a11y-bar {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+body.dark-mode.high-contrast .a11y-btn {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode.high-contrast .a11y-btn--active,
+body.dark-mode.high-contrast .a11y-btn--active .a11y-btn__mark {
+  background: #00ffff !important;
+  color: #000000 !important;
+}
+
+body.dark-mode .queue__stat-icon--active {
+  background: #103050 !important;
+  color: #38d8d8 !important;
+}
+
+body.dark-mode .queue__stat-icon--review {
+  background: #422006 !important;
+  color: #fbbf24 !important;
+}
+
+body.dark-mode .queue__stat-icon--complete {
+  background: #052e24 !important;
+  color: #34d399 !important;
+}
+
+body.dark-mode .queue__stat-icon--priority {
+  background: #450a0a !important;
+  color: #f87171 !important;
+}
+
+body.dark-mode .queue__item-icon {
+  color: var(--text-main) !important;
+}
+
+body.dark-mode .badge--in_progress {
+  background: #103050 !important;
+  color: #38d8d8 !important;
+  border-color: #29556d !important;
+}
+
+body.dark-mode .badge--awaiting_review {
+  background: #422006 !important;
+  color: #fbbf24 !important;
+  border-color: #92400e !important;
+}
+
+body.dark-mode .badge--completed {
+  background: #052e24 !important;
+  color: #34d399 !important;
+  border-color: #065f46 !important;
+}
+
+body.dark-mode .badge--priority {
+  background: #450a0a !important;
+  color: #fca5a5 !important;
+  border-color: #991b1b !important;
+}
+
+body.dark-mode .badge--info {
+  background: #103050 !important;
+  color: #38d8d8 !important;
+  border-color: #29556d !important;
+}
+
+body.dark-mode .symptom-chip:hover,
+body.dark-mode .upload__dropzone:hover {
+  background: #103050 !important;
+}
+
+body.dark-mode .chat__info span {
+  color: #dffafa !important;
+}
+
+body.dark-mode .theme-toggle {
+  background: #103050 !important;
+  border-color: #29556d !important;
+  color: #38d8d8 !important;
+}
+
+body.dark-mode .theme-toggle:hover,
+body.dark-mode .theme-toggle--active {
+  background: #38d8d8 !important;
+  color: #071827 !important;
+}
+
+body.dark-mode .vk-display input,
+body.dark-mode .vk-key {
+  background: #103050 !important;
+  border-color: #29556d !important;
+}
+
+body.dark-mode .vk-key--action {
+  background: #173d5c !important;
+  color: #38d8d8 !important;
+}
