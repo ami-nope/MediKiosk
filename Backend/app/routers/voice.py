@@ -86,7 +86,7 @@ async def process_turn(
     language = event.language or ""
     supported = set(settings.SUPPORTED_LANGUAGES)
     if language not in supported:
-        await websocket.send_json({"type": "error", "stage": "stt", "message": "Detected language is not supported. Please use English, Hindi, Bengali, or Odia."})
+        await websocket.send_json({"type": "error", "stage": "stt", "message": "Detected language is not supported. Please use English, Hindi, or Odia."})
         return
 
     try:

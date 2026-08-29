@@ -4,22 +4,22 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Core Brand Palette */
-  --bg-app:          #f6fbfb;
+  /* Core Brand Palette - Refined Clinical Medical Cyan & Deep Navy */
+  --bg-app:          #f0f6f8;
   --bg-surface:      #ffffff;
-  --bg-subtle:       #edf8f8;
-  --bg-hover:        #dffafa;
+  --bg-subtle:       #eaf2f5;
+  --bg-hover:        #dbeef2;
 
   /* MediKiosk Branding */
-  --primary:         #103050;
-  --primary-hover:   #0a263f;
-  --primary-light:   #e8fbfb;
+  --primary:         #0d5c75;
+  --primary-hover:   #094457;
+  --primary-light:   #e3f4f8;
   --primary-contrast:#ffffff;
-  --accent:          #38d8d8;
-  --accent-hover:    #20bfc8;
-  --accent-soft:     #dffafa;
-  --navy:            #103050;
-  --navy-surface:    #173d5c;
+  --accent:          #0891b2;
+  --accent-hover:    #0e7490;
+  --accent-soft:     #e0f2fe;
+  --navy:            #0f2942;
+  --navy-surface:    #173c5e;
 
   /* Status Colors */
   --success:         #059669;  /* Emerald */
@@ -35,70 +35,70 @@
   --danger-border:   #fecaca;
 
   /* Typography */
-  --text-main:       #103050;
-  --text-sub:        #31546d;
-  --text-muted:      #607d8c;
+  --text-main:       #0f2942;
+  --text-sub:        #334e68;
+  --text-muted:      #627d98;
   --text-inverse:    #ffffff;
 
   /* Structural */
-  --border:          #bddce3;
-  --border-light:    #d9eeee;
-  --border-strong:   #7ab7c1;
+  --border:          #cbdbe2;
+  --border-light:    #e2edf1;
+  --border-strong:   #829ab1;
   
-  --shadow-sm:       0 1px 2px 0 rgba(16, 48, 80, 0.06);
-  --shadow-md:       0 4px 8px -1px rgba(16, 48, 80, 0.10), 0 2px 4px -2px rgba(16, 48, 80, 0.05);
-  --shadow-lg:       0 14px 28px -8px rgba(16, 48, 80, 0.18), 0 6px 12px -8px rgba(16, 48, 80, 0.10);
+  --shadow-sm:       0 1px 3px 0 rgba(15, 41, 66, 0.06);
+  --shadow-md:       0 4px 12px -2px rgba(15, 41, 66, 0.08), 0 2px 6px -2px rgba(15, 41, 66, 0.04);
+  --shadow-lg:       0 12px 28px -4px rgba(15, 41, 66, 0.12), 0 4px 10px -2px rgba(15, 41, 66, 0.06);
 
-  --radius-sm:       4px;
-  --radius-md:       8px;
-  --radius-lg:       12px;
-  --radius-xl:       16px;
+  --radius-sm:       6px;
+  --radius-md:       10px;
+  --radius-lg:       14px;
+  --radius-xl:       20px;
   --radius-full:     9999px;
 
-  --font-family:     'Source Sans 3', 'Segoe UI', sans-serif;
+  --font-family:     'Source Sans 3', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --header-h:        64px;
 }
 
-/* Dark Mode Theme — true black surfaces with restrained elevation */
+/* Dark Mode Theme */
 body.dark-mode {
   color-scheme: dark;
-  --bg-app:          #071827;
-  --bg-surface:      #0d2438;
-  --bg-subtle:       #103050;
-  --bg-hover:        #173d5c;
+  --bg-app:          #0b1926;
+  --bg-surface:      #122334;
+  --bg-subtle:       #19324a;
+  --bg-hover:        #20415f;
 
-  --text-main:       #f6fbfb;
-  --text-sub:        #c8e6eb;
-  --text-muted:      #9bc5cc;
-  --text-inverse:    #ffffff;
+  --text-main:       #f0f6fc;
+  --text-sub:        #c2d6e6;
+  --text-muted:      #8baec7;
+  --text-inverse:    #0b1926;
 
-  --border:          #29556d;
-  --border-light:    #173d5c;
-  --border-strong:   #4ba5ae;
+  --border:          #244563;
+  --border-light:    #19324a;
+  --border-strong:   #3d6c94;
 
-  --primary:         #38d8d8;
-  --primary-hover:   #79eeee;
-  --primary-light:   #103050;
-  --primary-contrast:#071827;
-  --accent:          #38d8d8;
-  --accent-hover:    #79eeee;
-  --accent-soft:     #103050;
-  --navy:            #103050;
-  --navy-surface:    #071827;
+  --primary:         #38bdf8;
+  --primary-hover:   #7dd3fc;
+  --primary-light:   #143550;
+  --primary-contrast:#081c2d;
+  --accent:          #38bdf8;
+  --accent-hover:    #7dd3fc;
+  --accent-soft:     #143550;
+  --navy:            #081c2d;
+  --navy-surface:    #0f2942;
 
   --success:         #34d399;
-  --success-bg:      #052e24;
-  --success-border:  #065f46;
+  --success-bg:      #064e3b;
+  --success-border:  #059669;
   --warning:         #fbbf24;
-  --warning-bg:      #422006;
-  --warning-border:  #92400e;
+  --warning-bg:      #78350f;
+  --warning-border:  #d97706;
   --danger:          #f87171;
-  --danger-bg:       #450a0a;
-  --danger-border:   #991b1b;
+  --danger-bg:       #7f1d1d;
+  --danger-border:   #dc2626;
 
-  --shadow-sm:       0 1px 2px rgba(0, 0, 0, 0.45);
-  --shadow-md:       0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg:       0 12px 30px rgba(0, 0, 0, 0.65);
+  --shadow-sm:       0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:       0 4px 14px rgba(0, 0, 0, 0.5);
+  --shadow-lg:       0 12px 32px rgba(0, 0, 0, 0.65);
 }
 
 body.dark-mode,
@@ -108,28 +108,21 @@ body.dark-mode #app {
 }
 
 body.dark-mode ::selection {
-  background: #38d8d8;
-  color: #071827;
+  background: #38bdf8;
+  color: #081c2d;
 }
 
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  scrollbar-width: none;
-}
-
-*::-webkit-scrollbar {
-  display: none;
 }
 
 html {
-  height: 100%;
+  min-height: 100%;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
-  overscroll-behavior: none;
 }
 
 body {
@@ -137,24 +130,37 @@ body {
   background-color: var(--bg-app);
   color: var(--text-main);
   line-height: 1.5;
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
+  min-height: 100vh;
   touch-action: manipulation;
+  overflow-x: hidden;
+}
+
+/* The kiosk is a fixed-height touch interface. Individual content areas own
+   any scrolling they need so the page never slides underneath the controls. */
+body[data-mode="kiosk"] {
+  overflow: hidden;
+}
+
+body[data-mode="kiosk"] #app,
+body[data-mode="kiosk"] #app > main {
+  height: calc(100vh - var(--header-h));
+  max-height: calc(100vh - var(--header-h));
+  overflow: hidden;
 }
 
 #app {
-  height: calc(100vh - var(--header-h));
-  min-height: 0;
+  min-height: calc(100vh - var(--header-h));
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  width: 100%;
 }
 
 #app > main {
-  height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   min-height: 0;
-  overflow: hidden;
 }
 
 /* SVG Icon Helper Utility */
@@ -174,7 +180,7 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -189,22 +195,30 @@ body {
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid var(--border-light);
+  border: 2.5px solid var(--border-light);
   border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   display: inline-block;
+  vertical-align: middle;
 }
 
-/* Custom Scrollbars */
+/* Polished Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-subtle);
+  border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
-  border-radius: 3px;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }

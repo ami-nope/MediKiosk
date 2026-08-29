@@ -30,6 +30,7 @@ uploads/
 *.sqlite
 *.sqlite3
 *.log
+*.env
 
 # IDE and operating-system files
 .vscode/

@@ -57,16 +57,21 @@ export async function updateAiConfig(config) {
 
 // ── Patients ─────────────────────────────────────────────────────────
 
-export async function createPatient({ display_name, external_id, preferred_language }) {
+export async function createPatient(patientData) {
   return request('/patients', {
     method: 'POST',
-    body: JSON.stringify({ display_name, external_id: external_id || null, preferred_language }),
+    body: JSON.stringify(patientData),
   });
 }
 
 export async function getPatient(patientId) {
   return request(`/patients/${patientId}`);
 }
+
+export async function getPatientByExternalId(externalId) {
+  return request(`/patients/by-external-id/${encodeURIComponent(externalId)}`);
+}
+
 
 
 // ── Sessions ─────────────────────────────────────────────────────────

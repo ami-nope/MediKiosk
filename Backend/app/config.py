@@ -30,15 +30,15 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./medikiosk.db"
 
     # ── LLM provider ─────────────────────────────────────────────────────
-    LLM_PROVIDER: str = "omniroute"
-    LLM_FALLBACK_PROVIDERS: str = "groq,gemini,omniroute,openrouter,anthropic"
+    LLM_PROVIDER: str = "openai"
+    LLM_FALLBACK_PROVIDERS: str = "groq,openai,gemini,omniroute,openrouter,anthropic"
 
     # OpenAI-compatible
     OPENAI_API_KEY: str = ""
-    OPENAI_BASE_URL: str = "https://api.openai.com/v1"
-    OPENAI_MODEL: str = "gpt-4o-mini"
-    OPENAI_TIMEOUT_SECONDS: float = 45.0
-    OPENAI_MAX_TOKENS: int = 96
+    OPENAI_BASE_URL: str = "https://api.amii.lol/v1"
+    OPENAI_MODEL: str = "qwen3:8b"
+    OPENAI_TIMEOUT_SECONDS: float = 20.0
+    OPENAI_MAX_TOKENS: int = 64
 
     # Summary generation is local by default so the kiosk never waits on GPU.
     SUMMARY_USE_LLM: bool = False
@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     SARVAM_API_KEY: str = ""
     SARVAM_STT_MODEL: str = "saaras:v3-realtime"
     SARVAM_TTS_MODEL: str = "bulbul:v3"
-    SUPPORTED_LANGUAGES: list[str] = ["en-IN", "hi-IN", "bn-IN", "or-IN"]
+    SUPPORTED_LANGUAGES: list[str] = ["en-IN", "hi-IN", "or-IN"]
 
     # ── File uploads ──────────────────────────────────────────────────────
     UPLOAD_DIR: str = "./uploads"

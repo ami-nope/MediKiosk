@@ -233,6 +233,7 @@ def build_history_messages(
     transcript: list[dict[str, Any]],
     user_message: str,
     patient_language: str = "en",
+    patient_info: dict[str, Any] | None = None,
 ) -> list[dict[str, str]]:
     """Build a chat message list for the history-taking flow."""
 
@@ -248,6 +249,28 @@ def build_history_messages(
             f"Respond in the patient's preferred language ({patient_language}). "
             "If the exact locale is not available, use the closest understandable match."
         )
+
+    patient_context_str = ""
+    if patient_info:
+        ctx_parts = []
+        if patient_info.get("display_name"):
+            ctx_parts.append(f"Patient Name: {patient_info['display_name']}")
+        if patient_info.get("age"):
+            ctx_parts.append(f"Age: {patient_info['age']}")
+        if patient_info.get("gender"):
+            ctx_parts.append(f"Gender: {patient_info['gender']}")
+        if patient_info.get("past_illnesses"):
+            ctx_parts.append(f"Known Past Illnesses/History: {patient_info['past_illnesses']}")
+        if patient_info.get("allergies"):
+            ctx_parts.append(f"Known Allergies: {patient_info['allergies']}")
+        if patient_info.get("current_medications"):
+            ctx_parts.append(f"Current Medications: {patient_info['current_medications']}")
+        if ctx_parts:
+            patient_context_str = (
+                "\n\nKNOWN PATIENT PROFILE (Do not re-ask these details; greet them warmly and refer to them naturally if relevant):\n"
+                + "\n".join(f"- {p}" for p in ctx_parts)
+                + "\n"
+            )
 
     system_prompt = (
         "You are Ami, a warm and conversational OPD intake assistant for MediKiosk. "
@@ -265,6 +288,7 @@ def build_history_messages(
         "After 5-8 patient answers or enough core history, finish with exactly: "
         "'**History intake is complete.** Thank you. Please continue to document upload.' "
         "Escalate urgent symptoms briefly and ask one safety question. "
+        f"{patient_context_str}"
         f"{language_instruction}"
     )
     messages.append({"role": "system", "content": system_prompt})

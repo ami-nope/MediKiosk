@@ -24,6 +24,13 @@ class Patient(Base):
         String(255), unique=True, nullable=True, index=True,
         comment="Mock ABHA-style external identifier",
     )
+    age: Mapped[int | None] = mapped_column(nullable=True)
+    gender: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    address: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    past_illnesses: Mapped[str | None] = mapped_column(String(1000), nullable=True, comment="Medical history / chronic conditions")
+    allergies: Mapped[str | None] = mapped_column(String(500), nullable=True, comment="Known allergies")
+    current_medications: Mapped[str | None] = mapped_column(String(1000), nullable=True, comment="Ongoing prescriptions")
     preferred_language: Mapped[str] = mapped_column(
         String(10), nullable=False, default="en",
     )

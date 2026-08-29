@@ -26,8 +26,23 @@ class ProviderError(Exception):
         super().__init__(f"Provider '{provider}' error: {detail}")
 
 
+class BadRequestError(Exception):
+    """Raised when client input is invalid."""
+
+    def __init__(self, detail: str):
+        self.detail = detail
+        super().__init__(detail)
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     """Attach custom exception handlers to the FastAPI app."""
+
+    @app.exception_handler(BadRequestError)
+    async def bad_request_handler(_request: Request, exc: BadRequestError) -> JSONResponse:
+        return JSONResponse(
+            status_code=400,
+            content={"detail": exc.detail},
+        )
 
     @app.exception_handler(NotFoundError)
     async def not_found_handler(_request: Request, exc: NotFoundError) -> JSONResponse:
@@ -46,3 +61,4 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=502,
             content={"detail": detail, "provider": exc.provider},
         )
+

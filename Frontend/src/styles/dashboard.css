@@ -3,51 +3,54 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 .page {
-  height: 100%;
+  flex: 1 1 auto;
   min-height: 0;
-  padding: 24px 0;
-  overflow: hidden;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .page__container {
-  height: 100%;
-  max-width: 1280px;
+  max-width: 1360px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 24px;
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  flex: 1 1 auto;
   min-height: 0;
 }
 
 .page__header {
-  margin-bottom: 28px;
+  margin-bottom: 8px;
 }
 
 .page__title {
   font-size: 1.75rem;
   font-weight: 800;
   color: var(--text-main);
+  letter-spacing: -0.01em;
 }
 
 .page__desc {
   color: var(--text-sub);
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
+  margin-top: 2px;
 }
 
 /* ── Queue Stats Bar ──────────────────────────────────────────────── */
 .queue__stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
-  margin-bottom: 18px;
-  flex: 0 0 auto;
+  flex-shrink: 0;
 }
 
 .queue__stat-card {
   background: var(--bg-surface);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 18px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -55,8 +58,8 @@
 }
 
 .queue__stat-icon {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -64,56 +67,63 @@
   flex-shrink: 0;
 }
 
-.queue__stat-icon--active { background: var(--accent-soft); color: var(--navy); }
-.queue__stat-icon--review { background: #fef3c7; color: #d97706; }
-.queue__stat-icon--complete { background: #d1fae5; color: #059669; }
-.queue__stat-icon--priority { background: #fee2e2; color: #dc2626; }
+.queue__stat-icon--active { background: var(--primary-light); color: var(--primary); }
+.queue__stat-icon--review { background: var(--warning-bg); color: var(--warning); }
+.queue__stat-icon--complete { background: var(--success-bg); color: var(--success); }
+.queue__stat-icon--priority { background: var(--danger-bg); color: var(--danger); }
+
+.queue__stat-icon .icon {
+  width: 22px;
+  height: 22px;
+}
 
 .queue__stat-value {
-  font-size: 1.5rem;
+  font-size: 1.65rem;
   font-weight: 800;
   color: var(--text-main);
-  line-height: 1;
+  line-height: 1.1;
 }
 
 .queue__stat-label {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 /* ── Filters Bar ──────────────────────────────────────────────────── */
 .queue__filters {
   display: flex;
   gap: 8px;
-  margin-bottom: 14px;
-  flex: 0 0 auto;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .queue__filter-btn {
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: var(--radius-full);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--text-sub);
   background: var(--bg-surface);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .queue__filter-btn:hover {
   background: var(--bg-subtle);
-  color: var(--text-main);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .queue__filter-btn--active {
-  background: var(--navy);
-  color: #ffffff;
-  border-color: var(--text-main);
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border-color: var(--primary);
 }
 
 /* ── Queue List ───────────────────────────────────────────────────── */
@@ -123,18 +133,15 @@
   flex-direction: column;
   gap: 12px;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 2px 4px 8px 0;
 }
 
 .queue__item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
+  gap: 18px;
+  padding: 18px 22px;
   background: var(--bg-surface);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -148,30 +155,33 @@
 }
 
 .queue__item--priority {
-  border-left: 4px solid var(--danger);
+  border-left: 5px solid var(--danger);
 }
 
 .queue__item-icon {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--bg-subtle);
-  color: var(--text-main);
+  background: var(--primary-light);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .queue__item-info {
   flex: 1;
+  min-width: 0;
 }
 
 .queue__item-name {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-main);
+  margin-bottom: 3px;
 }
 
 .queue__item-meta {
@@ -179,34 +189,34 @@
   color: var(--text-muted);
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 /* ── Detail EHR View ──────────────────────────────────────────────── */
 .detail {
-  flex: 1 1 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 4px;
+  width: 100%;
 }
 
 .detail__back {
   background: transparent;
   border: none;
   color: var(--primary);
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 6px 0;
+  font-family: inherit;
 }
 
 .detail__back:hover {
   color: var(--primary-hover);
+  text-decoration: underline;
 }
 
 .detail__patient-card {
@@ -218,29 +228,37 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 .detail__patient-avatar {
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: var(--navy);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.detail__patient-info {
+  flex: 1;
+  min-width: 240px;
 }
 
 .detail__patient-info h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: var(--text-main);
+  margin-bottom: 4px;
 }
 
 .detail__patient-info p {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: var(--text-sub);
 }
 
@@ -248,13 +266,14 @@
   margin-left: auto;
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .detail__section-title {
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
   margin-bottom: 12px;
   display: flex;
@@ -263,8 +282,8 @@
 }
 
 .detail__transcript {
-  max-height: 440px;
-  overflow: hidden;
+  max-height: 420px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -277,7 +296,7 @@
 .detail__transcript-msg {
   display: flex;
   gap: 8px;
-  max-width: 90%;
+  max-width: 85%;
 }
 
 .detail__transcript-msg--user {
@@ -291,7 +310,7 @@
 .detail__transcript-text {
   padding: 10px 14px;
   border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   line-height: 1.5;
 }
 
@@ -306,10 +325,16 @@
   border: 1px solid var(--border);
 }
 
+.detail__docs-list {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
 /* Review Editor */
 .review {
   grid-column: 1 / -1;
   background: var(--bg-surface);
+  border: 1px solid var(--border);
 }
 
 .review__header {
@@ -317,7 +342,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -326,8 +351,6 @@
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
-  max-height: 44vh;
-  overflow: hidden;
 }
 
 .review__field {
@@ -335,24 +358,27 @@
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .review__field-label {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--primary);
-  margin-bottom: 8px;
 }
 
 .review__field textarea {
   background: var(--bg-surface);
-  border: 1px solid var(--border);
-  font-size: 0.875rem;
+  border: 1.5px solid var(--border);
+  font-size: 0.9rem;
   line-height: 1.5;
   color: var(--text-main);
-  min-height: 70px;
+  min-height: 80px;
+  resize: vertical;
 }
 
 .review__actions {

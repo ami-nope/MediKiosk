@@ -27,7 +27,7 @@ import './styles/admin.css';
 // Kiosk SPA Flow (Render based on kioskStep in state)
 route('#/kiosk', () => {
   const container = document.createElement('div');
-  container.className = 'page';
+  container.className = 'page page--kiosk';
 
   let stepCleanup = null;
   let inactivityTimer = null;

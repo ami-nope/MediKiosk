@@ -1,63 +1,121 @@
 /**
- * MediKIOSK — Patient AI Intake Chat (Hospital Grade)
+ * MediKIOSK — Patient Clinical Consultation Interface
+ * Clean, professional hospital-grade intake flow with Voice and Text modes.
  */
 
 import { submitMessage } from '../api.js';
 import { getState, setState } from '../state.js';
 import { showToast } from '../components/toast.js';
 import { speakText, openVirtualKeyboard } from '../components/accessibility.js';
-import { showMaintenanceOverlay } from '../components/maintenanceOverlay.js';
 
 let isPriorityAlerted = false;
 
 export function renderChat() {
+  const s = getState();
+  const patientName = s.patient?.display_name || 'Patient';
+  const mrn = s.patient?.external_id || s.patient?.mrn || s.session?.id?.slice(0, 8).toUpperCase() || 'NEW-RECORD';
+  const lang = (s.patient?.preferred_language || 'en').toUpperCase();
+
   const el = document.createElement('div');
-  el.className = 'chat fade-in';
+  el.className = 'kiosk__panel kiosk__panel--consultation fade-in';
   el.innerHTML = `
-    <div class="chat__header">
-      <div class="chat__avatar">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>
-      </div>
-      <div class="chat__info">
-        <h3>Health Questions</h3>
-        <span>Session Active • OPD Patient History</span>
-      </div>
-    </div>
+    <div class="consultation-card">
+      
+      <!-- Institutional Consultation Header -->
+      <div class="consultation-header">
+        <div class="consultation-header__meta">
+          <span class="consultation-badge">OPD CLINICAL INTAKE</span>
+          <span class="consultation-patient-info">Patient: <strong>${escapeHtml(patientName)}</strong> &bull; MRN: <strong>${escapeHtml(mrn)}</strong> &bull; Lang: <strong>${lang}</strong></span>
+        </div>
 
-    <div class="chat__messages" id="chat-messages">
-      <div class="chat__welcome">
-        <h3>Tell us what brings you in today</h3>
-        <p>Speak naturally, or type your answer below.</p>
+        <div class="consultation-mode-toggle" role="tablist">
+          <button type="button" class="consult-mode-btn consult-mode-btn--active" id="mode-voice-btn" role="tab" aria-selected="true">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            <span>Voice</span>
+          </button>
+          <button type="button" class="consult-mode-btn" id="mode-text-btn" role="tab" aria-selected="false">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6.01" y2="8"/><line x1="10" y1="8" x2="10.01" y2="8"/><line x1="14" y1="8" x2="14.01" y2="8"/><line x1="18" y1="8" x2="18.01" y2="8"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
+            <span>Keyboard</span>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <div class="voice-panel" id="voice-panel">
-      <button type="button" class="voice-mic" id="voice-mic-btn" aria-label="Start speaking">
-        <svg class="icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3M8 22h8"/></svg>
-      </button>
-      <div class="voice-status" aria-live="polite">
-        <strong id="voice-state">Tap the microphone to speak</strong>
-        <span id="voice-subtitle">Your words will appear here as you speak.</span>
+      <!-- Main Consultation Body -->
+      <div class="consultation-body">
+        
+        <!-- Assistant Question Panel -->
+        <div class="consult-question-box">
+          <div class="consult-assistant-badge">
+            <div class="consult-avatar">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>
+            </div>
+            <div>
+              <span class="consult-doctor-title">Ami &bull; Clinical Triage Assistant</span>
+              <span class="consult-status-indicator" id="consult-status-indicator">Ready to listen</span>
+            </div>
+          </div>
+
+          <div class="consult-question-text" id="consult-question-text">
+            Hello <strong>${escapeHtml(patientName)}</strong>. What symptoms or medical concern brings you to the hospital today?
+          </div>
+        </div>
+
+        <!-- VOICE INTERACTION SECTION -->
+        <div class="consult-voice-section" id="consult-voice-section">
+          
+          <div class="consult-voice-toolbar">
+            <button type="button" class="consult-mic-button" id="consult-mic-button">
+              <svg class="icon consult-mic-icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <span id="consult-mic-label">Tap to Speak</span>
+            </button>
+
+            <div class="consult-live-caption" id="consult-live-caption">
+              <span class="consult-caption-prompt" id="consult-caption-prompt">Press the button above and describe your symptoms in your own words.</span>
+            </div>
+          </div>
+
+          <!-- Common Symptoms Quick-Select Pills -->
+          <div class="consult-quick-symptoms">
+            <span class="consult-quick-label">Or quick tap:</span>
+            <button type="button" class="consult-symptom-pill" data-text="Fever and body pain">Fever &amp; Body Pain</button>
+            <button type="button" class="consult-symptom-pill" data-text="Cough and sore throat">Cough &amp; Cold</button>
+            <button type="button" class="consult-symptom-pill" data-text="Severe stomach pain">Stomach Pain</button>
+            <button type="button" class="consult-symptom-pill" data-text="General routine checkup">Routine Checkup</button>
+          </div>
+
+        </div>
+
+        <!-- TEXT / KEYBOARD SECTION (Hidden by default) -->
+        <div class="consult-text-section" id="consult-text-section" hidden>
+          <div class="consult-history-log" id="consult-history-log"></div>
+          
+          <div class="consult-text-input-bar">
+            <button type="button" class="btn btn--secondary" id="consult-vk-btn" title="On-Screen Touch Keyboard">
+              <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6.01" y2="8"/><line x1="10" y1="8" x2="10.01" y2="8"/><line x1="14" y1="8" x2="14.01" y2="8"/><line x1="18" y1="8" x2="18.01" y2="8"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
+            </button>
+            <input
+              type="text"
+              class="consult-input-field"
+              id="consult-input-field"
+              placeholder="Type your response here..."
+              autocomplete="off"
+            />
+            <button type="button" class="btn btn--primary" id="consult-send-btn">
+              Send <span aria-hidden="true">&rarr;</span>
+            </button>
+          </div>
+        </div>
+
       </div>
-    </div>
 
-    <div id="chat-done-container"></div>
+      <!-- Action Footer Bar -->
+      <div class="consultation-footer">
+        <span class="consult-step-info">Responses are directly recorded for your physician's review.</span>
+        <button type="button" class="btn btn--primary" id="consult-next-btn">
+          Finish Intake &amp; Attach Documents &rarr;
+        </button>
+      </div>
 
-    <div class="chat__input-bar" id="chat-input-bar">
-      <button type="button" class="btn btn--secondary" id="chat-vk-trigger" title="On-Screen Touch Keyboard" style="padding:10px 14px;">
-        <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6.01" y2="8"/><line x1="10" y1="8" x2="10.01" y2="8"/><line x1="14" y1="8" x2="14.01" y2="8"/><line x1="18" y1="8" x2="18.01" y2="8"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
-      </button>
-      <input
-        type="text"
-        class="chat__input"
-        id="chat-input"
-        data-keyboard-label="Your answer"
-        placeholder="Or type your answer here..."
-        autocomplete="off"
-      />
-      <button class="chat__send" id="chat-send-btn" aria-label="Send message">
-        <svg class="icon" style="width:20px;height:20px;" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
     </div>
   `;
   return el;
@@ -65,42 +123,80 @@ export function renderChat() {
 
 export function mountChat() {
   isPriorityAlerted = false;
-  const input = document.getElementById('chat-input');
-  const sendBtn = document.getElementById('chat-send-btn');
-  const messagesEl = document.getElementById('chat-messages');
-  const vkBtn = document.getElementById('chat-vk-trigger');
-  const voiceMic = document.getElementById('voice-mic-btn');
-  const voiceState = document.getElementById('voice-state');
-  const voiceSubtitle = document.getElementById('voice-subtitle');
 
-  if (!input || !sendBtn || !messagesEl) return;
+  const voiceBtn = document.getElementById('mode-voice-btn');
+  const textBtn = document.getElementById('mode-text-btn');
+  const voiceSection = document.getElementById('consult-voice-section');
+  const textSection = document.getElementById('consult-text-section');
+  const micButton = document.getElementById('consult-mic-button');
+  const micLabel = document.getElementById('consult-mic-label');
+  const statusIndicator = document.getElementById('consult-status-indicator');
+  const questionText = document.getElementById('consult-question-text');
+  const captionPrompt = document.getElementById('consult-caption-prompt');
+  const historyLog = document.getElementById('consult-history-log');
+  const inputField = document.getElementById('consult-input-field');
+  const sendBtn = document.getElementById('consult-send-btn');
+  const vkBtn = document.getElementById('consult-vk-btn');
+  const nextBtn = document.getElementById('consult-next-btn');
+
+  function setMode(isVoice) {
+    voiceBtn.classList.toggle('consult-mode-btn--active', isVoice);
+    textBtn.classList.toggle('consult-mode-btn--active', !isVoice);
+    voiceBtn.setAttribute('aria-selected', String(isVoice));
+    textBtn.setAttribute('aria-selected', String(!isVoice));
+    voiceSection.hidden = !isVoice;
+    textSection.hidden = isVoice;
+
+    if (!isVoice && inputField) {
+      inputField.focus();
+    }
+  }
+
+  voiceBtn?.addEventListener('click', () => setMode(true));
+  textBtn?.addEventListener('click', () => setMode(false));
 
   const s = getState();
   if (s.chatMessages.length > 0) {
-    messagesEl.innerHTML = '';
-    s.chatMessages.forEach(msg => appendMessage(messagesEl, msg.role, msg.content, msg.provider, msg.fallback_reason));
-    scrollToBottom(messagesEl);
+    const lastMsg = s.chatMessages[s.chatMessages.length - 1];
+    if (lastMsg.role === 'assistant') {
+      questionText.innerHTML = formatMessage(lastMsg.content);
+    }
+    s.chatMessages.forEach(msg => appendLogItem(historyLog, msg.role, msg.content));
+  } else {
+    const initialGreeting = `Hello ${s.patient?.display_name || 'Patient'}. What symptoms or medical concern brings you to the hospital today?`;
+    speakText(initialGreeting);
   }
 
-  vkBtn?.addEventListener('click', () => openVirtualKeyboard(input));
-
-  messagesEl.addEventListener('click', (e) => {
-    const mark = e.target.closest('.chat__provider-mark');
-    const reason = mark?.dataset.fallbackReason;
-    if (reason) {
-      showToast(`Fallback reason: ${reason}`, 'info');
-    }
+  // Quick symptom pills
+  document.querySelectorAll('.consult-symptom-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      handlePatientAnswer(pill.dataset.text);
+    });
   });
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  // Next step
+  nextBtn?.addEventListener('click', () => {
+    setState({ kioskStep: 3 });
+  });
+
+  // Text inputs
+  vkBtn?.addEventListener('click', () => openVirtualKeyboard(inputField));
+  inputField?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      handleSend();
+      handleSendText();
     }
   });
+  sendBtn?.addEventListener('click', handleSendText);
 
-  sendBtn.addEventListener('click', handleSend);
+  function handleSendText() {
+    const text = inputField.value.trim();
+    if (!text) return;
+    inputField.value = '';
+    handlePatientAnswer(text);
+  }
 
+  // Audio / Speech Engine
   let voiceSocket;
   let audioContext;
   let processor;
@@ -109,14 +205,42 @@ export function mountChat() {
   let audioSource;
   let audioQueue = [];
   let audioPlaying = false;
+  let silenceStartedAt = null;
+  let hasSpeech = false;
+  let stopQueued = false;
 
-  voiceMic?.addEventListener('click', async () => {
+  const voiceApiBase = (window.__VOICE_API_URL__ || import.meta.env.VITE_VOICE_API_URL || 'https://voice.amii.lol').replace(/\/$/, '');
+  const STOP_AFTER_SILENCE_MS = Number(window.__VOICE_SILENCE_MS__ ?? import.meta.env.VITE_VOICE_SILENCE_MS ?? 1800);
+  const AUDIO_THRESHOLD = Number(window.__VOICE_AUDIO_THRESHOLD__ ?? import.meta.env.VITE_VOICE_AUDIO_THRESHOLD ?? 0.04);
+
+  function setStatus(status, text) {
+    statusIndicator.textContent = text;
+    statusIndicator.className = `consult-status-indicator consult-status-indicator--${status}`;
+    if (status === 'listening') {
+      micButton.classList.add('consult-mic-button--listening');
+      micLabel.textContent = 'Listening... (Tap to finish)';
+    } else {
+      micButton.classList.remove('consult-mic-button--listening');
+      micLabel.textContent = 'Tap to Speak';
+    }
+  }
+
+  micButton?.addEventListener('click', async () => {
     if (voiceSocket?.readyState === WebSocket.OPEN) {
       stopVoice();
       return;
     }
+
+    const isSecureContext = window.isSecureContext || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (!navigator.mediaDevices?.getUserMedia || !isSecureContext) {
+      startBrowserSpeechRecognition();
+      return;
+    }
+
     try {
-      voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      voiceStream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, sampleRate: 16000, echoCancellation: true, noiseSuppression: true }
+      });
       audioContext = new AudioContext();
       microphone = audioContext.createMediaStreamSource(voiceStream);
       processor = audioContext.createScriptProcessor(4096, 1, 1);
@@ -125,72 +249,175 @@ export function mountChat() {
       microphone.connect(processor);
       processor.connect(audioSource);
       audioSource.connect(audioContext.destination);
-      voiceSocket = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/voice/${getState().session?.id}`);
+
+      voiceSocket = new WebSocket(toVoiceSocketUrl(voiceApiBase));
       voiceSocket.binaryType = 'arraybuffer';
       voiceSocket.onopen = () => {
-        setVoiceState('listening', 'Listening...', 'Speak naturally. I will show your words here.');
-        voiceMic.classList.add('voice-mic--listening');
+        hasSpeech = false;
+        stopQueued = false;
+        silenceStartedAt = null;
+        setStatus('listening', 'Listening to you...');
+        captionPrompt.textContent = 'Listening... Please speak clearly.';
       };
       voiceSocket.onmessage = (event) => handleVoiceEvent(event);
-      voiceSocket.onerror = () => showVoiceError('voice connection');
+      voiceSocket.onerror = () => {
+        stopVoice(false);
+        startBrowserSpeechRecognition();
+      };
       voiceSocket.onclose = () => stopVoice(false);
       processor.onaudioprocess = (event) => {
         if (voiceSocket?.readyState === WebSocket.OPEN) {
-          voiceSocket.send(pcm16FromBuffer(event.inputBuffer.getChannelData(0), audioContext.sampleRate));
+          const input = event.inputBuffer.getChannelData(0);
+          signalActivity(input);
+          const pcm = pcm16FromBuffer(input, audioContext.sampleRate);
+          voiceSocket.send(new Uint8Array(pcm.buffer));
         }
       };
-    } catch (error) {
-      showVoiceError(error.name === 'NotAllowedError' ? 'microphone permission' : 'microphone');
+    } catch {
+      startBrowserSpeechRecognition();
     }
   });
+
+  function signalActivity(samples) {
+    let energy = 0;
+    for (let i = 0; i < samples.length; i += 1) energy += samples[i] * samples[i];
+    const rms = Math.sqrt(energy / Math.max(1, samples.length));
+    const now = performance.now();
+
+    if (rms > AUDIO_THRESHOLD) {
+      hasSpeech = true;
+      silenceStartedAt = null;
+      stopQueued = false;
+      return;
+    }
+
+    if (hasSpeech && !stopQueued) {
+      if (silenceStartedAt === null) silenceStartedAt = now;
+      if (now - silenceStartedAt >= STOP_AFTER_SILENCE_MS) {
+        stopQueued = true;
+        if (voiceSocket?.readyState === WebSocket.OPEN) {
+          voiceSocket.send('stop');
+          setStatus('processing', 'Processing your response...');
+        }
+      }
+    }
+  }
 
   function handleVoiceEvent(event) {
     if (typeof event.data !== 'string') {
       audioQueue.push(event.data);
       playNextAudio();
-      setVoiceState('speaking', 'Ami is speaking', 'You can interrupt by speaking again.');
+      setStatus('speaking', 'Speaking...');
       return;
     }
+
     const payload = JSON.parse(event.data);
-    if (payload.type === 'transcript.partial') {
-      setVoiceState('listening', 'Listening...', payload.text || '');
-    } else if (payload.type === 'transcript.final') {
-      setVoiceState('processing', 'Working on your answer...', payload.text || '');
-      appendMessage(messagesEl, 'user', payload.text);
-      setState({ chatMessages: [...getState().chatMessages, { role: 'user', content: payload.text }] });
-      scrollToBottom(messagesEl);
-    } else if (payload.type === 'assistant.text') {
-      appendMessage(messagesEl, 'assistant', payload.text, payload.provider, payload.fallback_reason);
-      setState({ chatMessages: [...getState().chatMessages, { role: 'assistant', content: payload.text, provider: payload.provider, fallback_reason: payload.fallback_reason }] });
-    } else if (payload.type === 'assistant.done') {
-      setVoiceState('idle', 'Your turn', 'Tap the microphone whenever you are ready.');
+    const eventType = payload.type || payload.event;
+    const text = payload.text || payload.message || '';
+
+    if (eventType === 'transcript.partial') {
+      captionPrompt.textContent = `You: "${text}"`;
+      setStatus('listening', 'Hearing words...');
+    } else if (eventType === 'transcript.final') {
+      const finalText = text.trim();
+      if (!finalText) return;
+      captionPrompt.textContent = `You: "${finalText}"`;
+      handlePatientAnswer(finalText);
+    } else if (eventType === 'assistant.done') {
+      setStatus('idle', 'Ready to listen');
       if (payload.intake_complete) setState({ kioskStep: 3 });
-    } else if (payload.type === 'error') {
-      showVoiceError(`${payload.stage}: ${payload.message}`);
     }
   }
 
   function stopVoice(sendStop = true) {
-    if (sendStop && voiceSocket?.readyState === WebSocket.OPEN) voiceSocket.send(JSON.stringify({ type: 'stop' }));
+    if (sendStop && voiceSocket?.readyState === WebSocket.OPEN) voiceSocket.send('stop');
     processor?.disconnect();
     microphone?.disconnect();
     audioSource?.disconnect();
     voiceStream?.getTracks().forEach(track => track.stop());
     audioContext?.close();
-    voiceMic?.classList.remove('voice-mic--listening');
-    setVoiceState('idle', 'Tap the microphone to speak', 'Your words will appear here as you speak.');
+    setStatus('idle', 'Ready to listen');
   }
 
-  function setVoiceState(state, title, subtitle) {
-    voiceState.textContent = title;
-    voiceSubtitle.textContent = subtitle;
-    voiceMic.className = `voice-mic ${state === 'listening' ? 'voice-mic--listening' : ''} ${state === 'speaking' ? 'voice-mic--speaking' : ''}`;
+  function startBrowserSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      showToast('Microphone not supported on this browser. Please type your answers.', 'info');
+      setMode(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = s.patient?.preferred_language || 'en-IN';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setStatus('listening', 'Listening to you...');
+      captionPrompt.textContent = 'Listening... Please speak clearly.';
+    };
+
+    recognition.onresult = (event) => {
+      const current = event.resultIndex;
+      const transcript = event.results[current][0].transcript;
+      captionPrompt.textContent = `You: "${transcript}"`;
+
+      if (event.results[current].isFinal) {
+        recognition.stop();
+        setStatus('idle', 'Ready');
+        handlePatientAnswer(transcript);
+      }
+    };
+
+    recognition.onerror = () => setStatus('idle', 'Ready to listen');
+    recognition.onend = () => setStatus('idle', 'Ready to listen');
+    recognition.start();
   }
 
-  function showVoiceError(message) {
-    showToast(`Voice error: ${message}`, 'error');
-    stopVoice(false);
-    setVoiceState('error', 'Voice unavailable', `Please use the text box. Error: ${message}`);
+  async function handlePatientAnswer(userText) {
+    const cleanText = userText.trim();
+    if (!cleanText) return;
+
+    captionPrompt.innerHTML = `Recorded: <strong>"${escapeHtml(cleanText)}"</strong>`;
+    setStatus('processing', 'Doctor assistant is thinking...');
+
+    appendLogItem(historyLog, 'user', cleanText);
+    setState({ chatMessages: [...getState().chatMessages, { role: 'user', content: cleanText }] });
+
+    const sessionId = getState().session?.id;
+    if (!sessionId) return;
+
+    try {
+      const res = await submitMessage(sessionId, cleanText);
+      const reply = res.assistant_reply;
+
+      questionText.innerHTML = formatMessage(reply);
+      setStatus('speaking', 'Speaking...');
+      speakText(reply);
+
+      appendLogItem(historyLog, 'assistant', reply);
+      setState({
+        chatMessages: [
+          ...getState().chatMessages,
+          { role: 'assistant', content: reply, provider: res.provider, fallback_reason: res.fallback_reason }
+        ]
+      });
+
+      if (res.is_priority && !isPriorityAlerted) {
+        isPriorityAlerted = true;
+        showToast('Urgent Symptoms Notice: Patient escalated for immediate care team review.', 'warning');
+      }
+
+      if (res.intake_complete) {
+        showToast('Clinical history complete. Proceeding to document attachment.', 'success');
+        window.setTimeout(() => setState({ kioskStep: 3 }), 1500);
+      } else {
+        window.setTimeout(() => setStatus('idle', 'Ready to listen'), 3500);
+      }
+    } catch (err) {
+      setStatus('idle', 'Ready to listen');
+      showToast(err.message || 'Assistant response failed. Please retry.', 'error');
+    }
   }
 
   async function playNextAudio() {
@@ -201,205 +428,51 @@ export function mountChat() {
       const source = audioContext.createBufferSource();
       source.buffer = buffer;
       source.connect(audioContext.destination);
-      source.onended = () => { audioPlaying = false; playNextAudio(); };
+      source.onended = () => {
+        audioPlaying = false;
+        playNextAudio();
+      };
       source.start();
     } catch {
       audioPlaying = false;
-      showVoiceError('audio playback');
     }
   }
+}
 
-  async function handleSend() {
-    if (input.disabled || sendBtn.disabled) return;
-
-    const text = input.value.trim();
-    if (!text) return;
-
-    const state = getState();
-    const sessionId = state.session?.id;
-    if (!sessionId) return;
-
-
-    input.value = '';
-
-    const welcome = messagesEl.querySelector('.chat__welcome');
-    if (welcome) welcome.remove();
-
-    appendMessage(messagesEl, 'user', text);
-    scrollToBottom(messagesEl);
-
-    const typing = showTyping(messagesEl);
-    scrollToBottom(messagesEl);
-
-    input.disabled = true;
-    sendBtn.disabled = true;
-    let shouldUnlockInput = true;
-
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 120000);
-
-    try {
-      const res = await submitMessage(sessionId, text, { signal: controller.signal });
-      typing.remove();
-
-      appendMessage(messagesEl, 'assistant', res.assistant_reply, res.provider, res.fallback_reason);
-      scrollToBottom(messagesEl);
-
-      speakText(res.assistant_reply);
-
-      const messages = [
-        ...state.chatMessages,
-        { role: 'user', content: text },
-        {
-          role: 'assistant',
-          content: res.assistant_reply,
-          provider: res.provider,
-          fallback_reason: res.fallback_reason,
-        },
-      ];
-      setState({ chatMessages: messages });
-
-      if (res.is_priority && !isPriorityAlerted) {
-        isPriorityAlerted = true;
-        const alert = document.createElement('div');
-        alert.className = 'chat__priority-alert';
-        alert.innerHTML = '<strong>Priority Escalation Alert</strong> — Potential urgent symptoms detected. Session escalated for nursing triage.';
-        messagesEl.appendChild(alert);
-        scrollToBottom(messagesEl);
-        showToast('Priority Escalation: Case flagged for immediate physician review.', 'warning');
-      }
-
-      if (res.is_priority) {
-        setState({ session: { ...getState().session, is_priority: true } });
-      }
-
-      if (res.intake_complete) {
-        input.disabled = true;
-        sendBtn.disabled = true;
-        shouldUnlockInput = false;
-        showToast('Questions complete. Moving to document upload.', 'success');
-        window.setTimeout(() => setState({ kioskStep: 3 }), 1200);
-        return;
-      }
-
-    } catch (err) {
-      typing.remove();
-      if (isGroqToolChoiceError(err)) {
-        const fallbackReply = getLocalFallbackReply(text);
-        appendMessage(messagesEl, 'assistant', fallbackReply, 'local');
-        scrollToBottom(messagesEl);
-        setState({
-          chatMessages: [
-            ...state.chatMessages,
-            { role: 'user', content: text },
-            { role: 'assistant', content: fallbackReply, provider: 'local' },
-          ],
-        });
-        speakText(fallbackReply);
-        return;
-      }
-
-      const message = err.name === 'AbortError'
-        ? 'AI assistant timed out. Please retry.'
-        : (err.message || 'AI assistant is unavailable. Please retry.');
-      showToast(message, 'error');
-      if (!err.status || err.status >= 500) {
-        console.warn('Chat request failed', err);
-      }
-    } finally {
-      window.clearTimeout(timeout);
-      if (shouldUnlockInput) {
-        input.disabled = false;
-        sendBtn.disabled = false;
-        input.focus();
-      }
-    }
-  }
-
-  showDoneBar();
+function toVoiceSocketUrl(baseUrl) {
+  const value = (baseUrl || '').trim().replace(/\/$/, '');
+  if (!value) return 'wss://voice.amii.lol/ws/stt';
+  if (value.startsWith('https://')) return `${value.replace(/^https:/, 'wss:')}/ws/stt`;
+  if (value.startsWith('http://')) return `${value.replace(/^http:/, 'ws:')}/ws/stt`;
+  return `wss://${value}/ws/stt`;
 }
 
 function pcm16FromBuffer(samples, inputRate) {
-  const ratio = inputRate / 16000;
-  const length = Math.floor(samples.length / ratio);
-  const pcm = new Int16Array(length);
-  for (let index = 0; index < length; index += 1) {
-    const sample = samples[Math.floor(index * ratio)] || 0;
-    pcm[index] = Math.max(-1, Math.min(1, sample)) * 0x7fff;
+  const targetRate = 16000;
+  const outputLength = Math.max(1, Math.round(samples.length * targetRate / inputRate));
+  const pcm = new Int16Array(outputLength);
+  for (let i = 0; i < outputLength; i += 1) {
+    const srcIndex = (i * inputRate) / targetRate;
+    const leftIndex = Math.floor(srcIndex);
+    const rightIndex = Math.min(leftIndex + 1, samples.length - 1);
+    const mix = srcIndex - leftIndex;
+    const sample = samples[leftIndex] * (1 - mix) + samples[rightIndex] * mix;
+    pcm[i] = Math.max(-1, Math.min(1, sample)) * 0x7fff;
   }
-  return pcm.buffer;
+  return pcm;
 }
 
-function appendMessage(container, role, content, provider, fallbackReason) {
-  const msg = document.createElement('div');
-  msg.className = `chat__msg chat__msg--${role}`;
-  
-  const iconSvg = role === 'user'
-    ? '<svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
-    : '<svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>';
-
-  const providerMark = role === 'assistant' && provider
-    ? `<span class="chat__provider-mark" title="${escapeHtml(providerTitle(provider, fallbackReason))}" data-fallback-reason="${escapeHtml(fallbackReason || '')}">${escapeHtml(providerMarkLabel(provider))}</span>`
-    : '';
-
-  msg.innerHTML = `
-    <div class="chat__msg-avatar">${iconSvg}</div>
-    <div class="chat__msg-bubble">${formatMessage(content)}${providerMark}</div>
-  `;
-  container.appendChild(msg);
-}
-
-function providerMarkLabel(provider) {
-  return String(provider || '').toLowerCase() === 'ami' ? 'ami' : 'other';
-}
-
-function providerTitle(provider, fallbackReason) {
-  const label = providerMarkLabel(provider);
-  if (label === 'ami') return 'Answered by Ami';
-  return fallbackReason ? `Fallback reason: ${fallbackReason}` : 'Answered by fallback provider';
-}
-
-function showTyping(container) {
-  const typing = document.createElement('div');
-  typing.className = 'chat__typing';
-  typing.style.cssText = 'display:flex; align-items:center; gap:8px; padding:8px 0;';
-  typing.innerHTML = `
-    <div class="chat__msg-avatar" style="background:var(--primary);color:#fff;">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>
-    </div>
-    <div style="background:var(--bg-surface); padding:8px 14px; border-radius:12px; border:1px solid var(--border); font-size:0.875rem; color:var(--text-muted);">
-      <span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:6px;"></span> Assistant is typing...
-    </div>
-  `;
-  container.appendChild(typing);
-  return typing;
-}
-
-function showDoneBar() {
-  const container = document.getElementById('chat-done-container');
+function appendLogItem(container, role, content) {
   if (!container) return;
-
-  container.innerHTML = `
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 20px; background:var(--success-bg); border-top:1px solid var(--success-border);">
-      <span style="font-size:0.875rem; font-weight:600; color:var(--success);">Completed history intake?</span>
-      <button class="btn btn--primary btn--sm" id="chat-done-btn">Proceed to Document Upload →</button>
-    </div>
+  const isUser = role === 'user';
+  const item = document.createElement('div');
+  item.className = `consult-log-item consult-log-item--${isUser ? 'user' : 'assistant'}`;
+  item.innerHTML = `
+    <span class="consult-log-sender">${isUser ? 'Patient' : 'Assistant'}:</span>
+    <span class="consult-log-text">${formatMessage(content)}</span>
   `;
-
-  document.getElementById('chat-done-btn')?.addEventListener('click', () => {
-    const s = getState();
-    if (s.chatMessages.length === 0) {
-      showToast('Please enter at least one symptom or select a button before continuing', 'warning');
-      return;
-    }
-    setState({ kioskStep: 3 });
-  });
-}
-
-function scrollToBottom(el) {
-  requestAnimationFrame(() => {
-    el.scrollTop = el.scrollHeight;
-  });
+  container.appendChild(item);
+  container.scrollTop = container.scrollHeight;
 }
 
 function escapeHtml(text) {
@@ -412,26 +485,4 @@ function formatMessage(text) {
   return escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\n/g, '<br>');
-}
-
-function isGroqToolChoiceError(err) {
-  const message = String(err?.message || '').toLowerCase();
-  return message.includes('tool choice is none') && message.includes('model called a tool');
-}
-
-function getLocalFallbackReply(text) {
-  const value = ` ${String(text || '').trim().toLowerCase()} `;
-  const hasAge = /\b(?:[1-9]\d?|1[01]\d|120)\b/.test(value);
-  const hasGender = /\b(?:m|f|fem|male|female|other|man|woman|boy|girl)\b/.test(value);
-
-  if (hasGender && !hasAge) {
-    return '**Age:** Please enter your age in years.';
-  }
-  if (hasAge && !hasGender) {
-    return '**Gender:** Please enter Male, Female, or Other.';
-  }
-  if (hasAge && hasGender) {
-    return '**What brings you in today?** Please describe your main concern in your own words.';
-  }
-  return '**Please continue.** Tell me your main problem and when it started.';
 }

@@ -200,6 +200,18 @@ async def generate_summary(
     record.structured_json = structured
     record.updated_at = datetime.now(timezone.utc)
 
+    # Sync into patient master profile
+    if session.patient:
+        pmh = structured.get("past_medical_history") or structured.get("chief_complaint")
+        if pmh and not session.patient.past_illnesses:
+            session.patient.past_illnesses = str(pmh)[:1000]
+        allergies = structured.get("allergies")
+        if allergies and not session.patient.allergies:
+            session.patient.allergies = ", ".join(allergies) if isinstance(allergies, list) else str(allergies)[:500]
+        meds = structured.get("medications")
+        if meds and not session.patient.current_medications:
+            session.patient.current_medications = ", ".join(meds) if isinstance(meds, list) else str(meds)[:1000]
+
     # Keep session in awaiting_review with the latest structured summary.
     session.status = SessionStatus.AWAITING_REVIEW
     await db.flush()

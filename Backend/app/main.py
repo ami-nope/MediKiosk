@@ -26,11 +26,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Ensure upload directory exists
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 
+    # Ensure all tables are created
+    from app.database import engine, Base
+    import app.models  # noqa: F401
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     yield  # Application is running
 
     # Shutdown: dispose of the DB engine
-    from app.database import engine
     await engine.dispose()
+
 
 
 def create_app() -> FastAPI:

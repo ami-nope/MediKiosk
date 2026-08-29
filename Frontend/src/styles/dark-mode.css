@@ -1,201 +1,226 @@
-/* ── True dark theme component overrides ──────────────────────────────── */
-/* Keep clinical colors readable while removing the blue-gray cast. */
+/* ═══════════════════════════════════════════════════════════════════════
+   MediKIOSK — Dark Mode & High Contrast Styles
+   ═══════════════════════════════════════════════════════════════════════ */
+
 body.dark-mode {
   color-scheme: dark;
 }
 
-body.dark-mode,
 body.dark-mode select,
 body.dark-mode textarea,
 body.dark-mode input {
-  color: var(--text-main) !important;
-}
-
-body.dark-mode h1,
-body.dark-mode h2,
-body.dark-mode h3,
-body.dark-mode h4,
-body.dark-mode .page__title,
-body.dark-mode .queue__stat-value,
-body.dark-mode .queue__item-name,
-body.dark-mode .detail__patient-info h2,
-body.dark-mode .registration__heading,
-body.dark-mode .chat__welcome h3 {
-  color: var(--text-main) !important;
-}
-
-body.dark-mode p,
-body.dark-mode .page__desc,
-body.dark-mode .queue__stat-label,
-body.dark-mode .queue__item-meta,
-body.dark-mode .detail__patient-info p,
-body.dark-mode .detail__section-title,
-body.dark-mode .registration__sub,
-body.dark-mode .consent__text {
-  color: var(--text-sub) !important;
-}
-
-body.dark-mode .vk-overlay {
-  background: var(--navy) !important;
+  color: var(--text-main);
+  background: var(--bg-surface);
+  border-color: var(--border);
 }
 
 body.dark-mode .header {
-  background: #ffffff !important;
-  border-bottom-color: var(--border-light) !important;
-}
-
-body.dark-mode .a11y-bar,
-body.dark-mode .mode-switch,
-body.dark-mode .header__health {
-  background: #0d2438 !important;
-  border-color: #29556d !important;
+  background: var(--bg-surface);
+  border-bottom-color: var(--border);
 }
 
 body.dark-mode .a11y-bar {
-  background: rgba(13, 36, 56, 0.97) !important;
-  border-color: #29556d !important;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.58) !important;
-}
-
-body.dark-mode .header__subtitle,
-body.dark-mode .header__health,
-body.dark-mode .a11y-btn,
-body.dark-mode .mode-switch__btn {
-  color: #a1a1aa !important;
+  background: rgba(18, 35, 52, 0.95);
+  border-color: var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 body.dark-mode .a11y-btn {
-  background: #103050 !important;
-  border-color: #29556d !important;
-  color: #f6fbfb !important;
+  background: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-main);
 }
 
-body.dark-mode .a11y-btn__mark {
-  background: #173d5c !important;
-  color: #38d8d8 !important;
-}
-
-body.dark-mode .header__subtitle {
-  background: var(--accent-soft) !important;
-  color: var(--text-main) !important;
-}
-
-body.dark-mode .a11y-btn:hover,
-body.dark-mode .mode-switch__btn:hover {
-  background: #173d5c !important;
-  color: #f6fbfb !important;
+body.dark-mode .a11y-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 body.dark-mode .a11y-btn--active,
+body.dark-mode .a11y-btn--selected {
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border-color: var(--primary);
+}
+
+body.dark-mode .a11y-language {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+body.dark-mode .mode-switch {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+body.dark-mode .mode-switch__btn {
+  color: var(--text-muted);
+}
+
 body.dark-mode .mode-switch__btn--active {
-  background: var(--primary) !important;
-  color: #071827 !important;
+  background: var(--primary);
+  color: var(--primary-contrast);
 }
 
-body.dark-mode .a11y-btn--active .a11y-btn__mark {
-  background: rgba(7, 24, 39, 0.18) !important;
-  color: #071827 !important;
+body.dark-mode .theme-toggle {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-main);
 }
 
-body.dark-mode.high-contrast .a11y-bar {
-  background: #000000 !important;
-  border: 2px solid #ffffff !important;
+body.dark-mode .theme-toggle:hover,
+body.dark-mode .theme-toggle--active {
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border-color: var(--primary);
 }
 
-body.dark-mode.high-contrast .a11y-btn {
+body.dark-mode .kiosk__step-indicator {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+
+body.dark-mode .kiosk__step-number {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+body.dark-mode .kiosk__step--active .kiosk__step-number {
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border-color: var(--primary);
+}
+
+body.dark-mode .registration__card,
+body.dark-mode .consent-document,
+body.dark-mode .consultation-card,
+body.dark-mode .consult-voice-toolbar,
+body.dark-mode .card,
+body.dark-mode .queue__item,
+body.dark-mode .queue__stat-card,
+body.dark-mode .modal-dialog,
+body.dark-mode .toast {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+
+body.dark-mode .consultation-header,
+body.dark-mode .consultation-footer,
+body.dark-mode .consult-question-box,
+body.dark-mode .consult-history-log {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+body.dark-mode .consult-symptom-pill {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-main);
+}
+
+body.dark-mode .consultation-mode-toggle {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+
+body.dark-mode .consult-input-field {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-main);
+}
+
+body.dark-mode .choice-card {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+
+body.dark-mode .choice-card:hover {
+  border-color: var(--primary);
+  background: var(--bg-subtle);
+}
+
+body.dark-mode .choice-card:has(input:checked) {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+body.dark-mode .consent-clause {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  border-left-color: var(--primary);
+}
+
+body.dark-mode .consent-clause__tag {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+body.dark-mode .consent-document__patient-bar,
+body.dark-mode .consent-document__attestation {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+body.dark-mode .consent-btn--secondary {
+  background: var(--bg-surface);
+  border-color: var(--border-strong);
+  color: var(--text-main);
+}
+
+body.dark-mode .consent-btn--secondary:hover {
+  background: var(--bg-subtle);
+}
+
+body.dark-mode .chat__messages {
+  background: var(--bg-app);
+}
+
+body.dark-mode .chat__msg--assistant .chat__msg-bubble {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border-color: var(--border);
+}
+
+body.dark-mode .review__field {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+body.dark-mode .review__field textarea {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+
+/* High Contrast Overrides */
+body.high-contrast,
+body.dark-mode.high-contrast {
+  --bg-app: #000000;
+  --bg-surface: #0a0a0a;
+  --bg-subtle: #141414;
+  --text-main: #ffffff;
+  --text-sub: #e5e5e5;
+  --text-muted: #d4d4d4;
+  --border: #ffffff;
+  --border-light: #888888;
+  --primary: #00ffff;
+  --primary-contrast: #000000;
+  --navy: #000000;
+}
+
+body.high-contrast .theme-toggle,
+body.dark-mode.high-contrast .theme-toggle,
+body.high-contrast .header__scale-select,
+body.dark-mode.high-contrast .header__scale-select {
   background: #000000 !important;
   border: 2px solid #ffffff !important;
   color: #ffffff !important;
 }
 
-body.dark-mode.high-contrast .a11y-btn--active,
-body.dark-mode.high-contrast .a11y-btn--active .a11y-btn__mark {
+body.high-contrast .theme-toggle--active,
+body.dark-mode.high-contrast .theme-toggle--active {
   background: #00ffff !important;
   color: #000000 !important;
-}
-
-body.dark-mode .queue__stat-icon--active {
-  background: #103050 !important;
-  color: #38d8d8 !important;
-}
-
-body.dark-mode .queue__stat-icon--review {
-  background: #422006 !important;
-  color: #fbbf24 !important;
-}
-
-body.dark-mode .queue__stat-icon--complete {
-  background: #052e24 !important;
-  color: #34d399 !important;
-}
-
-body.dark-mode .queue__stat-icon--priority {
-  background: #450a0a !important;
-  color: #f87171 !important;
-}
-
-body.dark-mode .queue__item-icon {
-  color: var(--text-main) !important;
-}
-
-body.dark-mode .badge--in_progress {
-  background: #103050 !important;
-  color: #38d8d8 !important;
-  border-color: #29556d !important;
-}
-
-body.dark-mode .badge--awaiting_review {
-  background: #422006 !important;
-  color: #fbbf24 !important;
-  border-color: #92400e !important;
-}
-
-body.dark-mode .badge--completed {
-  background: #052e24 !important;
-  color: #34d399 !important;
-  border-color: #065f46 !important;
-}
-
-body.dark-mode .badge--priority {
-  background: #450a0a !important;
-  color: #fca5a5 !important;
-  border-color: #991b1b !important;
-}
-
-body.dark-mode .badge--info {
-  background: #103050 !important;
-  color: #38d8d8 !important;
-  border-color: #29556d !important;
-}
-
-body.dark-mode .symptom-chip:hover,
-body.dark-mode .upload__dropzone:hover {
-  background: #103050 !important;
-}
-
-body.dark-mode .chat__info span {
-  color: #dffafa !important;
-}
-
-body.dark-mode .theme-toggle {
-  background: #103050 !important;
-  border-color: #29556d !important;
-  color: #38d8d8 !important;
-}
-
-body.dark-mode .theme-toggle:hover,
-body.dark-mode .theme-toggle--active {
-  background: #38d8d8 !important;
-  color: #071827 !important;
-}
-
-body.dark-mode .vk-display input,
-body.dark-mode .vk-key {
-  background: #103050 !important;
-  border-color: #29556d !important;
-}
-
-body.dark-mode .vk-key--action {
-  background: #173d5c !important;
-  color: #38d8d8 !important;
+  border-color: #00ffff !important;
 }

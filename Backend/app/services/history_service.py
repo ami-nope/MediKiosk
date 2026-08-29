@@ -402,7 +402,17 @@ async def submit_message(
     # Build the conversation and let the configured provider answer each turn.
     # The deterministic intake flow below is only a fallback when the provider fails.
     patient_language = session.patient.preferred_language if session.patient else "en"
-    messages = build_history_messages(transcript, user_message, patient_language)
+    patient_info = None
+    if session.patient:
+        patient_info = {
+            "display_name": session.patient.display_name,
+            "age": session.patient.age,
+            "gender": session.patient.gender,
+            "past_illnesses": session.patient.past_illnesses,
+            "allergies": session.patient.allergies,
+            "current_medications": session.patient.current_medications,
+        }
+    messages = build_history_messages(transcript, user_message, patient_language, patient_info=patient_info)
 
     # ── Call the LLM ──
     try:
