@@ -802,6 +802,19 @@
   }
 }
 
+/* Speaking pulsing halo */
+@keyframes speakingHalo {
+  0% {
+    box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.5), 0 0 0 8px rgba(8, 145, 178, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 16px rgba(8, 145, 178, 0.25), 0 0 0 32px rgba(8, 145, 178, 0.08);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.5), 0 0 0 8px rgba(8, 145, 178, 0.2);
+  }
+}
+
 .consult-mic-target {
   width: 96px;
   height: 96px;
@@ -819,6 +832,13 @@
   position: relative;
   z-index: 2;
   flex-shrink: 0;
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.consult-mic-target--speaking {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  border-color: #e0f2fe;
+  animation: speakingHalo 2s infinite ease-in-out;
 }
 
 .consult-mic-target--listening {
@@ -829,7 +849,7 @@
 
 .consult-mic-target--processing {
   background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-  animation: none;
+  animation: calmPulse 1.5s infinite ease-in-out;
 }
 
 .consult-mic-icon-large {
@@ -858,64 +878,87 @@
   color: var(--text-sub);
 }
 
-/* Live Interim Transcription Box */
-.consult-transcript-box {
+.consult-mic-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid #10b981;
+  color: #059669;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: blink 1s infinite;
+}
+
+/* Unified Clean Speech & Direct-Edit Input Bar */
+.consult-unified-input-wrap {
   width: 100%;
   max-width: 580px;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
+  margin: 4px auto 0 auto;
+}
+
+.consult-input-inner {
+  position: relative;
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 10px 16px;
-  min-height: 48px;
+  padding: 10px 14px 8px 14px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  text-align: left;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.consult-transcript-label {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--primary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.consult-input-inner:focus-within,
+.consult-input-inner--active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(13, 92, 117, 0.15);
 }
 
-.consult-transcript-content {
-  font-size: 1rem;
+.consult-speech-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 500;
   color: var(--text-main);
-  font-weight: 600;
-  line-height: 1.35;
-  word-break: break-word;
+  line-height: 1.4;
+  resize: none;
+  min-height: 48px;
+  max-height: 120px;
 }
 
-.consult-interim-text {
+.consult-speech-input:focus {
+  outline: none;
+}
+
+.consult-speech-input::placeholder {
   color: var(--text-sub);
   font-style: italic;
-  opacity: 0.9;
+  opacity: 0.75;
 }
 
-.consult-cursor {
-  display: inline-block;
-  color: var(--primary);
-  animation: blink 0.9s infinite;
-  font-weight: bold;
-  margin-left: 2px;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-/* Transcript Confirmation Card */
-.consult-confirmation-card {
-  width: 100%;
-  max-width: 580px;
+.consult-input-controls {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  animation: fadeIn 0.2s ease-out;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
 }
 
 .consult-confirm-actions {

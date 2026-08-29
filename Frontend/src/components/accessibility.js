@@ -9,7 +9,7 @@
  */
 
 let synth = window.speechSynthesis;
-let voiceEnabled = false;
+let voiceEnabled = true;
 let lastTextInput = null;
 const remoteVoiceApiBase = (window.__VOICE_API_URL__ || import.meta.env.VITE_VOICE_API_URL || 'https://voice.amii.lol').replace(/\/$/, '');
 
@@ -155,32 +155,131 @@ export function toggleVoice() {
   return voiceEnabled;
 }
 
-export async function speakText(text) {
-  if (!voiceEnabled || !text || !text.trim()) return;
+export function stopSpeaking() {
+  if (synth) {
+    synth.cancel();
+  }
+}
 
-  try {
-    const response = await fetch(`${remoteVoiceApiBase}/tts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, language: 'en' }),
-    });
+let cachedVoices = [];
 
-    if (!response.ok) {
-      throw new Error(await response.text());
+function loadVoices() {
+  if (!synth) return [];
+  const voices = synth.getVoices();
+  if (voices && voices.length > 0) {
+    cachedVoices = voices;
+  }
+  return cachedVoices;
+}
+
+if (synth) {
+  loadVoices();
+  if (synth.onvoiceschanged !== undefined) {
+    synth.onvoiceschanged = loadVoices;
+  }
+}
+
+function getBestVoice() {
+  const voices = cachedVoices.length > 0 ? cachedVoices : (synth ? synth.getVoices() : []);
+  if (!voices || voices.length === 0) return null;
+
+  // 1. Prioritize Neural / Natural voices (Edge & Windows 11 high quality voices)
+  const naturalVoice = voices.find(v => 
+    v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Neural'))
+  );
+  if (naturalVoice) return naturalVoice;
+
+  // 2. Google High Quality Voices (Chrome)
+  const googleVoice = voices.find(v => 
+    v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Premium'))
+  );
+  if (googleVoice) return googleVoice;
+
+  // 3. Known pleasant assistant voices
+  const assistantVoice = voices.find(v => 
+    v.lang.startsWith('en') && (v.name.includes('Jenny') || v.name.includes('Aria') || v.name.includes('Samantha') || v.name.includes('Zira'))
+  );
+  if (assistantVoice) return assistantVoice;
+
+  // 4. Any English voice
+  return voices.find(v => v.lang.startsWith('en')) || voices[0];
+}
+
+export function speakText(text) {
+  return new Promise((resolve) => {
+    if (!voiceEnabled || !text || !text.trim()) {
+      resolve();
+      return;
     }
 
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
-    await audio.play();
-    return;
-  } catch {
-    if (!synth) return;
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
-    synth.speak(utterance);
-  }
+    // Clean markdown formatting (e.g. **bold**, *italic*, # headings, bullets) for clean speech
+    const cleanSpeechText = text
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/#{1,6}\s?/g, '')
+      .replace(/[`_~]/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!cleanSpeechText) {
+      resolve();
+      return;
+    }
+
+    // Use browser SpeechSynthesis with optimal speed and neural voice selection
+    if (synth) {
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
+      utterance.rate = 1.12; // Natural, brisk conversational cadence
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      const bestVoice = getBestVoice();
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+        utterance.lang = bestVoice.lang;
+      }
+
+      let resolved = false;
+      const finish = () => {
+        if (!resolved) {
+          resolved = true;
+          resolve();
+        }
+      };
+
+      utterance.onend = finish;
+      utterance.onerror = finish;
+      
+      // Safety timeout in case onend doesn't fire
+      const maxDuration = Math.max(1800, (cleanSpeechText.split(' ').length * 360));
+      setTimeout(finish, maxDuration);
+
+      synth.speak(utterance);
+      return;
+    }
+
+    // Fallback: try remote TTS API
+    (async () => {
+      try {
+        const response = await fetch(`${remoteVoiceApiBase}/tts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: cleanSpeechText, language: 'en' }),
+        });
+        if (!response.ok) throw new Error('Remote TTS failed');
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.onended = () => resolve();
+        audio.onerror = () => resolve();
+        await audio.play();
+      } catch {
+        resolve();
+      }
+    })();
+  });
 }
 
 export function openVirtualKeyboard(inputElement) {
