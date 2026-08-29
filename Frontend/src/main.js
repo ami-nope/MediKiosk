@@ -2,7 +2,7 @@ import { renderHeader, mountHeader, cleanupHeader } from './components/header.js
 import { renderRegistration, mountRegistration } from './kiosk/registration.js';
 import { renderConsent, mountConsent } from './kiosk/consent.js';
 import { renderChat, mountChat } from './kiosk/chat.js';
-import { renderUpload, mountUpload } from './kiosk/upload.js';
+import { renderUpload, mountUpload, cleanupUpload } from './kiosk/upload.js';
 import { renderComplete, mountComplete, cleanupComplete } from './kiosk/complete.js';
 import { renderQueue, mountQueue, cleanupQueue } from './dashboard/queue.js';
 import { renderDetail, mountDetail, cleanupDetail } from './dashboard/detail.js';
@@ -91,6 +91,7 @@ route('#/kiosk', () => {
       case 3:
         stepEl = renderUpload();
         stepMountFn = mountUpload;
+        stepCleanup = cleanupUpload;
         break;
       case 4:
         stepEl = renderComplete();

@@ -5,52 +5,15 @@ cd Backend
 cd Frontend                       
 npm run dev    
 
-
-
-add a database to everything 
+http://localhost:5174/#/kiosk
+http://localhost:5174/#/dashboard
+http://localhost:5174/#/admin
 
 
 make the admin portal credential 
 
 
-kiosk id location and assignment to the kiosk
 
-
-frontend optimisation 
-
-
-code un ai 
-
-make the voice system 
-
- 
-
- optimise the messaging to ai 
- use different apis for different tasks
-use some local model in hp laptop for smaller tasks and the lenovo for larger tasks
-
-
-modify the chatbot experience
-
-use maximum mcqs in chatbot
-make multillingual
-
-ONE QUESTION AT A TIME AND 
-
-re do the doc's ui to make it more user friendly and intuitive 
-show the transcript as button
-
-and show a summary and use some ai and if doctor accesses it to early present a prdicted timer 
-
-suggestions for the doctor based on the transcript and summary 
-
-
-ocr and all scan using external camera use iphone with wire and virtual cam to simulate a scanner and use the ocr to extract text and data from the scanned documents and images 
-and process them to the ai and store in the database for future reference and analysis.
-
-make a ID system for patients and doctors to easily access their records and information.
-
-make credentials and security measures for the admin portal to ensure data privacy and protection.
 
 delete patient records after a certain period of time or upon request to comply with data retention policies and regulations.
 

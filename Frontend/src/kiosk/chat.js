@@ -5,7 +5,7 @@ import { speakText, stopSpeaking, openVirtualKeyboard } from '../components/acce
 
 let isPriorityAlerted = false;
 
-// ── Reusable Haptic Feedback Helper (Web Vibration API with Feature Detect) ──
+// ── Reusable Haptic Feedback Helper ──────────────────────────────────────────
 export function triggerHaptic(type = 'light') {
   if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
   try {
@@ -28,7 +28,7 @@ export function triggerHaptic(type = 'light') {
   }
 }
 
-// ── Reusable VoiceVisualizer Component (Web Audio AnalyserNode + Canvas) ─────
+// ── Reusable VoiceVisualizer Component ──────────────────────────────────────
 class VoiceVisualizer {
   constructor(canvasElement) {
     this.canvas = canvasElement;
@@ -48,29 +48,26 @@ class VoiceVisualizer {
       this.analyser.smoothingTimeConstant = 0.8;
       this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
       sourceStream.connect(this.analyser);
-    } catch {
-      this.analyser = null;
+      this.startLoop();
+    } catch (err) {
+      console.warn('Audio Visualizer attach notice:', err);
     }
   }
 
-  setState(state) {
-    this.state = state;
-    if (state === 'listening' || state === 'speaking') {
-      this.start();
-    } else {
-      this.stop();
+  setState(newState) {
+    this.state = newState;
+    if (newState === 'speaking' || newState === 'listening') {
+      if (!this.animationId) this.startLoop();
     }
   }
 
-  start() {
-    if (this.animationId) cancelAnimationFrame(this.animationId);
-    const render = () => {
-      this.draw();
-      if (this.state === 'listening' || this.state === 'speaking') {
-        this.animationId = requestAnimationFrame(render);
-      }
+  startLoop() {
+    if (!this.canvas || !this.ctx) return;
+    const draw = () => {
+      this.animationId = requestAnimationFrame(draw);
+      this.renderWave();
     };
-    render();
+    draw();
   }
 
   stop() {
@@ -78,78 +75,77 @@ class VoiceVisualizer {
       cancelAnimationFrame(this.animationId);
       this.animationId = null;
     }
-    this.draw();
-  }
-
-  draw() {
-    if (!this.canvas || !this.ctx) return;
-    const { width, height } = this.canvas;
-    const ctx = this.ctx;
-    ctx.clearRect(0, 0, width, height);
-
-    if (this.state === 'listening') {
-      let currentVol = 0.2;
-      if (this.analyser && this.dataArray) {
-        this.analyser.getByteFrequencyData(this.dataArray);
-        let sum = 0;
-        for (let i = 0; i < this.dataArray.length; i++) {
-          sum += this.dataArray[i];
-        }
-        const avg = sum / this.dataArray.length;
-        currentVol = Math.max(0.12, avg / 128);
-      } else {
-        currentVol = 0.18 + 0.12 * Math.sin(Date.now() / 160);
-      }
-      this.smoothedVolume = this.smoothedVolume * 0.75 + currentVol * 0.25;
-
-      const numBars = 9;
-      const barWidth = 6;
-      const barGap = 6;
-      const totalWidth = numBars * barWidth + (numBars - 1) * barGap;
-      const startX = (width - totalWidth) / 2;
-      const centerY = height / 2;
-
-      for (let i = 0; i < numBars; i++) {
-        const distFromCenter = Math.abs(i - (numBars - 1) / 2) / ((numBars - 1) / 2);
-        const factor = 1 - distFromCenter * 0.45;
-        const waveOffset = Math.sin(Date.now() / 150 + i * 0.6) * 0.18;
-        const barHeight = Math.max(8, (height * 0.8) * (this.smoothedVolume + waveOffset) * factor);
-
-        const gradient = ctx.createLinearGradient(0, centerY - barHeight / 2, 0, centerY + barHeight / 2);
-        gradient.addColorStop(0, '#0891b2');
-        gradient.addColorStop(0.5, '#0d5c75');
-        gradient.addColorStop(1, '#38bdf8');
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.roundRect(startX + i * (barWidth + barGap), centerY - barHeight / 2, barWidth, barHeight, 3);
-        ctx.fill();
-      }
-    } else if (this.state === 'speaking') {
-      // Smooth sinusoidal voice wave representing Ami's speech
-      const numBars = 11;
-      const barWidth = 5;
-      const barGap = 5;
-      const totalWidth = numBars * barWidth + (numBars - 1) * barGap;
-      const startX = (width - totalWidth) / 2;
-      const centerY = height / 2;
-
-      for (let i = 0; i < numBars; i++) {
-        const wave = Math.sin(Date.now() / 180 + i * 0.55);
-        const barHeight = Math.max(6, (height * 0.65) * (0.4 + 0.5 * Math.abs(wave)));
-
-        const gradient = ctx.createLinearGradient(0, centerY - barHeight / 2, 0, centerY + barHeight / 2);
-        gradient.addColorStop(0, '#38bdf8');
-        gradient.addColorStop(0.5, '#0284c7');
-        gradient.addColorStop(1, '#06b6d4');
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.roundRect(startX + i * (barWidth + barGap), centerY - barHeight / 2, barWidth, barHeight, 3);
-        ctx.fill();
-      }
+    if (this.ctx && this.canvas) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
   }
+
+  renderWave() {
+    const { ctx, canvas } = this;
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    let volume = 0;
+    if (this.analyser && this.dataArray && this.state === 'listening') {
+      this.analyser.getByteFrequencyData(this.dataArray);
+      let sum = 0;
+      for (let i = 0; i < this.dataArray.length; i++) sum += this.dataArray[i];
+      volume = sum / this.dataArray.length / 255;
+    } else if (this.state === 'speaking') {
+      volume = 0.35 + Math.sin(Date.now() * 0.008) * 0.25;
+    } else if (this.state === 'listening') {
+      volume = 0.15 + Math.sin(Date.now() * 0.004) * 0.1;
+    }
+
+    this.smoothedVolume += (volume - this.smoothedVolume) * 0.2;
+
+    const bars = 18;
+    const barWidth = 4;
+    const gap = (w - bars * barWidth) / (bars - 1);
+    const color = this.state === 'speaking' ? '#38bdf8' : '#10b981';
+
+    ctx.fillStyle = color;
+    for (let i = 0; i < bars; i++) {
+      const distFromCenter = Math.abs(i - bars / 2) / (bars / 2);
+      const factor = Math.cos(distFromCenter * Math.PI * 0.5);
+      const barH = Math.max(4, h * this.smoothedVolume * factor * (0.6 + Math.sin(Date.now() * 0.01 + i) * 0.4));
+      const x = i * (barWidth + gap);
+      const y = (h - barH) / 2;
+
+      ctx.beginPath();
+      ctx.roundRect(x, y, barWidth, barH, 2);
+      ctx.fill();
+    }
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}
+
+function formatMessage(content) {
+  let text = escapeHtml(content);
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+  text = text.replace(/\n/g, '<br/>');
+  return text;
+}
+
+function appendLogItem(container, role, text) {
+  if (!container) return;
+  const item = document.createElement('div');
+  item.className = `consult-log-item consult-log-item--${role} fade-in`;
+  item.innerHTML = `
+    <div class="consult-log-avatar">${role === 'user' ? '👤' : '🤖'}</div>
+    <div class="consult-log-bubble">${formatMessage(text)}</div>
+  `;
+  container.appendChild(item);
+  container.scrollTop = container.scrollHeight;
 }
 
 // ── Main Render Function ───────────────────────────────────────────────────
@@ -168,18 +164,26 @@ export function renderChat() {
       <div class="consultation-header">
         <div class="consultation-header__meta">
           <span class="consultation-badge">OPD CLINICAL INTAKE</span>
-          <span class="consultation-patient-info">Patient: <strong>${escapeHtml(patientName)}</strong> &bull; ABHA: <strong>${escapeHtml(mrn)}</strong> &bull; Lang: <strong>${lang}</strong></span>
+          <span class="consultation-patient-info">Patient: <strong>${escapeHtml(patientName)}</strong> &bull; ID: <strong>${escapeHtml(mrn)}</strong></span>
         </div>
 
-        <div class="consultation-mode-toggle" role="tablist">
-          <button type="button" class="consult-mode-btn consult-mode-btn--active" id="mode-voice-btn" role="tab" aria-selected="true">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-            <span>Voice Intake</span>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <!-- Skip AI Interrogation Button -->
+          <button type="button" class="btn btn--secondary btn--sm consult-skip-header-btn" id="consult-skip-header-btn" title="Skip AI questions and go straight to document upload">
+            ⏩ Skip AI Questions
           </button>
-          <button type="button" class="consult-mode-btn" id="mode-text-btn" role="tab" aria-selected="false">
-            <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6.01" y2="8"/><line x1="10" y1="8" x2="10.01" y2="8"/><line x1="14" y1="8" x2="14.01" y2="8"/><line x1="18" y1="8" x2="18.01" y2="8"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
-            <span>Keyboard Mode</span>
-          </button>
+
+          <!-- Voice / Text Mode Toggle -->
+          <div class="consultation-mode-toggle" role="tablist">
+            <button type="button" class="consult-mode-btn consult-mode-btn--active" id="mode-voice-btn" role="tab" aria-selected="true">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <span>Voice</span>
+            </button>
+            <button type="button" class="consult-mode-btn" id="mode-text-btn" role="tab" aria-selected="false">
+              <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6.01" y2="8"/><line x1="10" y1="8" x2="10.01" y2="8"/><line x1="14" y1="8" x2="14.01" y2="8"/><line x1="18" y1="8" x2="18.01" y2="8"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
+              <span>Keyboard</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -230,14 +234,14 @@ export function renderChat() {
             <!-- Waveform Canvas Visualizer -->
             <canvas id="consult-audio-visualizer" class="consult-audio-canvas" width="220" height="48" hidden></canvas>
 
-            <!-- Unified Direct Input Box (Voice Streams Here + Direct Tap to Edit) -->
+            <!-- Voice Direct Input Box -->
             <div class="consult-unified-input-wrap">
               <div class="consult-input-inner" id="consult-input-inner">
                 <textarea
                   id="consult-speech-input"
                   class="consult-speech-input"
                   rows="2"
-                  placeholder="Speak naturally or tap here to type..."
+                  placeholder="Speak naturally or type your answer here..."
                   autocomplete="off"
                 ></textarea>
                 <div class="consult-input-controls">
@@ -264,17 +268,39 @@ export function renderChat() {
 
         </div>
 
-        <!-- 3. Secondary Keyboard Section -->
+        <!-- 3. Dedicated Keyboard Mode Section -->
         <div class="consult-text-section" id="consult-text-section" hidden>
           <div class="consult-history-log" id="consult-history-log"></div>
+          
+          <div class="consult-text-input-bar">
+            <div class="consult-input-inner" id="consult-keyboard-input-inner">
+              <textarea
+                id="consult-keyboard-input"
+                class="consult-speech-input"
+                rows="2"
+                placeholder="Type your response here and press Enter to send..."
+                autocomplete="off"
+              ></textarea>
+              <div class="consult-input-controls">
+                <button type="button" class="btn btn--xs btn--outline" id="consult-keyboard-keypad-btn" title="Touch Keypad">
+                  ⌨️ Keypad
+                </button>
+                <button type="button" class="btn btn--primary btn--sm" id="consult-keyboard-send-btn">
+                  Send &rarr;
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
 
       <!-- Action Footer Bar -->
-      <div class="consultation-footer">
-        <span class="consult-step-info">Responses are directly recorded for your physician's review.</span>
-        <button type="button" class="btn btn--primary" id="consult-next-btn">
+      <div class="consultation-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <button type="button" class="btn btn--secondary" id="consult-skip-footer-btn">
+          ⏩ Skip to Document Upload
+        </button>
+        <button type="button" class="btn btn--primary btn--lg" id="consult-next-btn">
           Finish Intake &amp; Attach Documents &rarr;
         </button>
       </div>
@@ -297,8 +323,10 @@ export function mountChat() {
   const questionText = document.getElementById('consult-question-text');
   const historyLog = document.getElementById('consult-history-log');
   const nextBtn = document.getElementById('consult-next-btn');
+  const skipHeaderBtn = document.getElementById('consult-skip-header-btn');
+  const skipFooterBtn = document.getElementById('consult-skip-footer-btn');
 
-  // Unified Voice & Direct-Edit Elements
+  // Unified Voice Elements
   const statusTitle = document.getElementById('consult-status-title');
   const statusSub = document.getElementById('consult-status-sub');
   const canvasEl = document.getElementById('consult-audio-visualizer');
@@ -307,9 +335,15 @@ export function mountChat() {
   const keypadBtn = document.getElementById('consult-keypad-btn');
   const inputInner = document.getElementById('consult-input-inner');
 
+  // Dedicated Keyboard Elements
+  const keyboardInput = document.getElementById('consult-keyboard-input');
+  const keyboardSendBtn = document.getElementById('consult-keyboard-send-btn');
+  const keyboardKeypadBtn = document.getElementById('consult-keyboard-keypad-btn');
+  const keyboardInputInner = document.getElementById('consult-keyboard-input-inner');
+
   const visualizer = new VoiceVisualizer(canvasEl);
 
-  let currentVoiceState = 'SPEAKING'; // 'SPEAKING' | 'LISTENING' | 'PROCESSING' | 'IDLE'
+  let currentVoiceState = 'SPEAKING';
   let recognitionInstance = null;
   let audioContext = null;
   let microphone = null;
@@ -330,41 +364,49 @@ export function mountChat() {
       visualizer.setState('idle');
     }
 
-    micTarget.className = 'consult-mic-target';
-    canvasEl.hidden = true;
+    if (micTarget) micTarget.className = 'consult-mic-target';
+    if (canvasEl) canvasEl.hidden = true;
 
     switch (state) {
       case 'SPEAKING':
-        micTarget.classList.add('consult-mic-target--speaking');
-        statusTitle.textContent = 'Ami is speaking...';
-        statusSub.textContent = 'Listen to the question, then speak your answer';
-        statusIndicator.textContent = 'Speaking...';
-        statusIndicator.className = 'consult-status-indicator consult-status-indicator--speaking';
-        canvasEl.hidden = false;
+        if (micTarget) micTarget.classList.add('consult-mic-target--speaking');
+        if (statusTitle) statusTitle.textContent = 'Ami is speaking...';
+        if (statusSub) statusSub.textContent = 'Listen to the question, then speak your answer';
+        if (statusIndicator) {
+          statusIndicator.textContent = 'Speaking...';
+          statusIndicator.className = 'consult-status-indicator consult-status-indicator--speaking';
+        }
+        if (canvasEl) canvasEl.hidden = false;
         break;
 
       case 'LISTENING':
-        micTarget.classList.add('consult-mic-target--listening');
-        statusTitle.textContent = 'Listening to you...';
-        statusSub.textContent = 'Speak naturally, or type directly below';
-        statusIndicator.textContent = 'Listening...';
-        statusIndicator.className = 'consult-status-indicator consult-status-indicator--listening';
-        canvasEl.hidden = false;
+        if (micTarget) micTarget.classList.add('consult-mic-target--listening');
+        if (statusTitle) statusTitle.textContent = 'Listening to you...';
+        if (statusSub) statusSub.textContent = 'Speak naturally, or type directly below';
+        if (statusIndicator) {
+          statusIndicator.textContent = 'Listening...';
+          statusIndicator.className = 'consult-status-indicator consult-status-indicator--listening';
+        }
+        if (canvasEl) canvasEl.hidden = false;
         break;
 
       case 'PROCESSING':
-        micTarget.classList.add('consult-mic-target--processing');
-        statusTitle.textContent = 'Ami is thinking...';
-        statusSub.textContent = 'Analyzing clinical response';
-        statusIndicator.textContent = 'Processing...';
-        statusIndicator.className = 'consult-status-indicator consult-status-indicator--processing';
+        if (micTarget) micTarget.classList.add('consult-mic-target--processing');
+        if (statusTitle) statusTitle.textContent = 'Ami is thinking...';
+        if (statusSub) statusSub.textContent = 'Analyzing clinical response';
+        if (statusIndicator) {
+          statusIndicator.textContent = 'Processing...';
+          statusIndicator.className = 'consult-status-indicator consult-status-indicator--processing';
+        }
         break;
 
       case 'IDLE':
-        statusTitle.textContent = 'Tap to speak';
-        statusSub.textContent = "Tell us what you're experiencing or type below";
-        statusIndicator.textContent = 'Ready';
-        statusIndicator.className = 'consult-status-indicator';
+        if (statusTitle) statusTitle.textContent = 'Tap to speak';
+        if (statusSub) statusSub.textContent = "Tell us what you're experiencing or type below";
+        if (statusIndicator) {
+          statusIndicator.textContent = 'Ready';
+          statusIndicator.className = 'consult-status-indicator';
+        }
         break;
     }
   }
@@ -372,17 +414,20 @@ export function mountChat() {
   function setMode(isVoice) {
     isVoiceModeActive = isVoice;
     triggerHaptic('light');
-    voiceBtn.classList.toggle('consult-mode-btn--active', isVoice);
-    textBtn.classList.toggle('consult-mode-btn--active', !isVoice);
-    voiceBtn.setAttribute('aria-selected', String(isVoice));
-    textBtn.setAttribute('aria-selected', String(!isVoice));
-    voiceSection.hidden = !isVoice;
-    textSection.hidden = isVoice;
+    voiceBtn?.classList.toggle('consult-mode-btn--active', isVoice);
+    textBtn?.classList.toggle('consult-mode-btn--active', !isVoice);
+    voiceBtn?.setAttribute('aria-selected', String(isVoice));
+    textBtn?.setAttribute('aria-selected', String(!isVoice));
+    if (voiceSection) voiceSection.hidden = !isVoice;
+    if (textSection) textSection.hidden = isVoice;
 
     if (!isVoice) {
       stopSpeaking();
       stopVoice();
-      if (speechInput) speechInput.focus();
+      setVoiceUIState('IDLE');
+      if (keyboardInput) {
+        setTimeout(() => keyboardInput.focus(), 50);
+      }
     } else {
       startVoiceListening();
     }
@@ -411,10 +456,22 @@ export function mountChat() {
     pill.addEventListener('click', () => {
       triggerHaptic('light');
       const text = pill.dataset.text;
-      if (speechInput) speechInput.value = text;
       handlePatientAnswer(text);
     });
   });
+
+  // Skip AI interrogation directly to Document Upload (Step 3)
+  function skipToDocumentUpload() {
+    triggerHaptic('medium');
+    isComponentMounted = false;
+    stopSpeaking();
+    stopVoice();
+    showToast('Skipping AI consultation. Proceeding to document attachment.', 'info');
+    setState({ kioskStep: 3 });
+  }
+
+  skipHeaderBtn?.addEventListener('click', skipToDocumentUpload);
+  skipFooterBtn?.addEventListener('click', skipToDocumentUpload);
 
   // Next step
   nextBtn?.addEventListener('click', () => {
@@ -425,7 +482,30 @@ export function mountChat() {
     setState({ kioskStep: 3 });
   });
 
-  // Direct In-Place Input & Typing Handlers
+  // ── Text Input Submission Handlers (Universal & Reliable) ──────────────────
+  function sendFromVoiceInput() {
+    const text = speechInput?.value.trim();
+    if (!text) {
+      speechInput?.focus();
+      return;
+    }
+    triggerHaptic('success');
+    if (speechInput) speechInput.value = '';
+    handlePatientAnswer(text);
+  }
+
+  function sendFromKeyboardInput() {
+    const text = keyboardInput?.value.trim();
+    if (!text) {
+      keyboardInput?.focus();
+      return;
+    }
+    triggerHaptic('success');
+    if (keyboardInput) keyboardInput.value = '';
+    handlePatientAnswer(text);
+  }
+
+  // Voice Input Events
   speechInput?.addEventListener('focus', () => {
     isUserTypingManually = true;
     inputInner?.classList.add('consult-input-inner--active');
@@ -443,26 +523,31 @@ export function mountChat() {
   speechInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      submitDirectInput();
+      sendFromVoiceInput();
     }
   });
 
-  sendActionBtn?.addEventListener('click', () => {
-    triggerHaptic('light');
-    submitDirectInput();
-  });
+  sendActionBtn?.addEventListener('click', sendFromVoiceInput);
 
   keypadBtn?.addEventListener('click', () => {
     triggerHaptic('light');
     openVirtualKeyboard(speechInput);
   });
 
-  function submitDirectInput() {
-    const text = speechInput?.value.trim();
-    if (!text) return;
-    triggerHaptic('success');
-    handlePatientAnswer(text);
-  }
+  // Keyboard Mode Input Events
+  keyboardInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendFromKeyboardInput();
+    }
+  });
+
+  keyboardSendBtn?.addEventListener('click', sendFromKeyboardInput);
+
+  keyboardKeypadBtn?.addEventListener('click', () => {
+    triggerHaptic('light');
+    openVirtualKeyboard(keyboardInput);
+  });
 
   // Mic target click: Tap to interrupt or start listening
   micTarget?.addEventListener('click', () => {
@@ -491,6 +576,7 @@ export function mountChat() {
       } catch {}
     }
     const val = speechInput?.value.trim();
+    if (speechInput) speechInput.value = '';
     if (val) {
       handlePatientAnswer(val);
     } else {
@@ -516,7 +602,6 @@ export function mountChat() {
     stopVoice();
 
     isUserTypingManually = false;
-    if (speechInput) speechInput.value = '';
     setVoiceUIState('LISTENING');
 
     const micTag = document.getElementById('consult-mic-live-tag');
@@ -558,10 +643,9 @@ export function mountChat() {
         if (transcript && !isUserTypingManually) {
           if (speechInput) speechInput.value = transcript;
 
-          // Auto silence detection: ~950ms after speech ends, submit automatically!
           clearTimeout(silenceTimer);
           silenceTimer = setTimeout(() => {
-            if (speechInput && speechInput.value.trim() && currentVoiceState === 'LISTENING') {
+            if (speechInput?.value.trim() && currentVoiceState === 'LISTENING') {
               triggerHaptic('light');
               commitSpeech();
             }
@@ -571,23 +655,30 @@ export function mountChat() {
 
       recognition.onerror = (e) => {
         console.warn('Speech recognition notice:', e.error);
-        if (speechInput && speechInput.value.trim()) {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          showToast('Microphone access blocked. Please allow mic or use Keyboard Mode.', 'warning');
+          setMode(false);
+          return;
+        }
+        if (speechInput?.value.trim()) {
           commitSpeech();
         }
       };
 
       recognition.onend = () => {
-        if (speechInput && speechInput.value.trim() && currentVoiceState === 'LISTENING') {
+        if (speechInput?.value.trim() && currentVoiceState === 'LISTENING') {
           commitSpeech();
-        } else if (currentVoiceState === 'LISTENING') {
-          try { recognition.start(); } catch {}
+        } else if (currentVoiceState === 'LISTENING' && !isUserTypingManually) {
+          try {
+            recognition.start();
+          } catch {}
         }
       };
 
       recognition.start();
     } catch (err) {
       console.warn('Speech recognition start notice:', err);
-      if (speechInput && speechInput.value.trim()) {
+      if (speechInput?.value.trim()) {
         commitSpeech();
       }
     }
@@ -640,7 +731,7 @@ export function mountChat() {
       const res = await submitMessage(sessionId, cleanText);
       const reply = res.assistant_reply;
 
-      questionText.innerHTML = formatMessage(reply);
+      if (questionText) questionText.innerHTML = formatMessage(reply);
       appendLogItem(historyLog, 'assistant', reply);
 
       setState({
@@ -660,7 +751,15 @@ export function mountChat() {
         await speakText(reply);
         window.setTimeout(() => setState({ kioskStep: 3 }), 1200);
       } else {
-        runAssistantSpeechCycle(reply);
+        if (isVoiceModeActive) {
+          runAssistantSpeechCycle(reply);
+        } else {
+          setVoiceUIState('IDLE');
+          if (keyboardInput) {
+            keyboardInput.value = '';
+            setTimeout(() => keyboardInput.focus(), 50);
+          }
+        }
       }
     } catch (err) {
       setVoiceUIState('IDLE');
@@ -682,29 +781,4 @@ function getSpeechRecognitionLanguage(lang) {
     en: 'en-IN',
   };
   return map[lang?.toLowerCase()] || 'en-IN';
-}
-
-function appendLogItem(container, role, content) {
-  if (!container) return;
-  const isUser = role === 'user';
-  const item = document.createElement('div');
-  item.className = `consult-log-item consult-log-item--${isUser ? 'user' : 'assistant'}`;
-  item.innerHTML = `
-    <span class="consult-log-sender">${isUser ? 'Patient' : 'Assistant'}:</span>
-    <span class="consult-log-text">${formatMessage(content)}</span>
-  `;
-  container.appendChild(item);
-  container.scrollTop = container.scrollHeight;
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function formatMessage(text) {
-  return escapeHtml(text)
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
 }

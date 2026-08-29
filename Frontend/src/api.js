@@ -122,6 +122,15 @@ export async function uploadDocument(sessionId, file) {
   });
 }
 
+export async function ocrDocument(sessionId, file) {
+  const form = new FormData();
+  form.append('file', file);
+  return request(`/sessions/${sessionId}/documents/ocr`, {
+    method: 'POST',
+    body: form,
+  });
+}
+
 export async function listDocuments(sessionId) {
   return request(`/sessions/${sessionId}/documents`);
 }
