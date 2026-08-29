@@ -732,101 +732,277 @@
   font-weight: 800;
 }
 
-/* Voice Interaction Toolbar */
+/* ── Touch Feedback & Active States ──────────────────────────────── */
+.consult-mic-target,
+.consult-symptom-pill,
+.consult-mode-btn,
+.consult-action-btn,
+.btn {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.consult-mic-target:active,
+.consult-symptom-pill:active,
+.consult-mode-btn:active,
+.consult-action-btn:active,
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Voice Interaction Section & Central Voice Hub ────────────────── */
 .consult-voice-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.consult-voice-toolbar {
-  display: flex;
-  align-items: center;
   gap: 14px;
-  padding: 12px 16px;
-  background: #ffffff;
-  border: 1.5px solid var(--border);
-  border-radius: 4px;
 }
 
-.consult-mic-button {
-  display: inline-flex;
+.consult-voice-hub {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 4px;
-  background: var(--primary);
+  justify-content: center;
+  padding: 20px 24px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  gap: 14px;
+  text-align: center;
+  min-height: 250px;
+}
+
+/* Breathing animation for IDLE */
+@keyframes calmPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.25), 0 4px 14px rgba(13, 92, 117, 0.15);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 16px rgba(8, 145, 178, 0.06), 0 8px 24px rgba(13, 92, 117, 0.22);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.25), 0 4px 14px rgba(13, 92, 117, 0.15);
+    transform: scale(1);
+  }
+}
+
+/* Active listening waves */
+@keyframes activeListeningHalo {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45), 0 0 0 8px rgba(220, 38, 38, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(220, 38, 38, 0.2), 0 0 0 28px rgba(220, 38, 38, 0.05);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45), 0 0 0 8px rgba(220, 38, 38, 0.15);
+  }
+}
+
+.consult-mic-target {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d5c75 0%, #0891b2 100%);
   color: #ffffff;
-  border: 1px solid var(--primary);
-  font-size: 0.95rem;
-  font-weight: 700;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
+  box-shadow: 0 6px 18px rgba(13, 92, 117, 0.2);
+  animation: calmPulse 3.2s infinite ease-in-out;
+  position: relative;
+  z-index: 2;
   flex-shrink: 0;
 }
 
-.consult-mic-button:hover {
-  background: var(--primary-hover);
+.consult-mic-target--listening {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  border-color: #fee2e2;
+  animation: activeListeningHalo 1.4s infinite ease-in-out;
 }
 
-.consult-mic-icon {
-  width: 20px;
-  height: 20px;
+.consult-mic-target--processing {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  animation: none;
 }
 
-.consult-mic-button--listening {
-  background: var(--danger);
-  border-color: var(--danger);
-  animation: voicePulse 1.2s infinite;
+.consult-mic-icon-large {
+  width: 38px;
+  height: 38px;
 }
 
-.consult-live-caption {
-  flex: 1;
-  font-size: 0.92rem;
+/* Audio Visualizer Canvas */
+.consult-audio-canvas {
+  width: 180px;
+  height: 40px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Status Prompts */
+.consult-voice-status-title {
+  font-size: 1.2rem;
+  font-weight: 800;
   color: var(--text-main);
-  min-height: 24px;
-  display: flex;
-  align-items: center;
+  margin-bottom: 2px;
 }
 
-.consult-caption-prompt {
-  color: var(--text-muted);
+.consult-voice-status-sub {
+  font-size: 0.875rem;
+  color: var(--text-sub);
+}
+
+/* Live Interim Transcription Box */
+.consult-transcript-box {
+  width: 100%;
+  max-width: 580px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+.consult-transcript-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.consult-transcript-content {
+  font-size: 1rem;
+  color: var(--text-main);
+  font-weight: 600;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.consult-interim-text {
+  color: var(--text-sub);
   font-style: italic;
+  opacity: 0.9;
+}
+
+.consult-cursor {
+  display: inline-block;
+  color: var(--primary);
+  animation: blink 0.9s infinite;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Transcript Confirmation Card */
+.consult-confirmation-card {
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.consult-confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
+}
+
+.consult-confirm-actions .btn {
+  flex: 1;
+  min-height: 48px;
+  font-size: 0.95rem;
+}
+
+/* Error State */
+.consult-error-card {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.consult-error-msg {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+.consult-error-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.consult-error-actions .btn {
+  flex: 1;
+  min-height: 42px;
 }
 
 /* Quick Symptoms Pills */
 .consult-quick-symptoms {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
 .consult-quick-label {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
 }
 
 .consult-symptom-pill {
-  padding: 6px 14px;
-  border-radius: 3px;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
   color: var(--text-main);
-  font-size: 0.8125rem;
+  font-size: 0.84rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
+  box-shadow: var(--shadow-sm);
 }
 
 .consult-symptom-pill:hover {
   background: var(--primary-light);
   border-color: var(--primary);
   color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .consult-mic-target,
+  .consult-mic-target--listening {
+    animation: none !important;
+  }
 }
 
 /* Text Section */

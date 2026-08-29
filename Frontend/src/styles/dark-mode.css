@@ -193,6 +193,17 @@ body.dark-mode .review__field textarea {
   border-color: var(--border);
 }
 
+body.dark-mode .consult-voice-hub,
+body.dark-mode .consult-symptom-pill {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+
+body.dark-mode .consult-transcript-box {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
 /* High Contrast Overrides */
 body.high-contrast,
 body.dark-mode.high-contrast {
